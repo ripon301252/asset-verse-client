@@ -34,36 +34,38 @@ const AllRequests = () => {
     fetchRequests();
   }, [page]);
 
-const handleApprove = async (req) => {
+const handleApprove = async (reqId, req) => {
   try {
     const approveInfo = {
       hrEmail: user.email,
       employeeEmail: req.email,
       assetId: req.assetId,
     };
-
-    await axiosSecure.put(`/asset_requests/${req._id}/approve`, approveInfo);
+    await axiosSecure.put(`/asset_requests/${reqId}/approve`, approveInfo);
     toast.success("Request approved!");
-    fetchRequests();
+
+    // এখন await fetchRequests
+    await fetchRequests();
   } catch (err) {
     console.error(err);
-    toast.error(err.response?.data?.message || "Failed to approve request");
+    toast.error("Failed to approve request");
   }
 };
 
 
-  const handleReject = async (reqId) => {
-    try {
-      const res = await axiosSecure.put(`/asset_requests/${reqId}/reject`);
-      if (res.data.success) {
-        toast.success("Request rejected!");
-        fetchRequests();
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to reject request");
-    }
-  };
+
+
+  const handleReject = async (reqId, req) => {
+  try {
+    await axiosSecure.put(`/asset_requests/${reqId}/reject`);
+    toast.success("Request rejected!");
+    await fetchRequests(); // UI auto-refresh
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to reject request");
+  }
+};
+
 
   const handleDelete = async (reqId) => {
     const confirmDelete = confirm("Are you sure you want to delete this request?");
@@ -138,7 +140,7 @@ const handleApprove = async (req) => {
                           <MdApproval className="text-lg" />
                         </button>
                         <button
-                          onClick={() => handleReject(req._id)}
+                          onClick={() => handleReject(req._id, req)}
                           className="btn btn-outline btn-square text-yellow-500 hover:bg-yellow-500 hover:text-black"
                         >
                           <TbPlayerEject className="text-lg" />
