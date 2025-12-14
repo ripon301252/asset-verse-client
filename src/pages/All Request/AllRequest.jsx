@@ -10,7 +10,7 @@ const AllRequests = () => {
   const [requests, setRequests] = useState([]);
   const [page, setPage] = useState(1);
   const [totalRequests, setTotalRequests] = useState(0);
-  const limit = 10; // 1 page এ কত request দেখাবো
+  const limit = 10;
 
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
@@ -22,8 +22,8 @@ const AllRequests = () => {
       const res = await axiosSecure.get("/asset_requests", {
         params: { page, limit },
       });
-      setRequests(res.data.requests); // backend থেকে requests array
-      setTotalRequests(res.data.total); // backend থেকে total count
+      setRequests(res.data.requests || []);
+      setTotalRequests(res.data.total || 0);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch requests");
@@ -34,38 +34,60 @@ const AllRequests = () => {
     fetchRequests();
   }, [page]);
 
-const handleApprove = async (reqId, req) => {
-  try {
-    const approveInfo = {
-      hrEmail: user.email,
-      employeeEmail: req.email,
-      assetId: req.assetId,
-    };
-    await axiosSecure.put(`/asset_requests/${reqId}/approve`, approveInfo);
-    toast.success("Request approved!");
+  const handleApprove = async (reqId, req) => {
+    if (!req.assetId || !req.email) {
+      toast.error("Missing asset or employee info");
+      return;
+    }
 
-    // এখন await fetchRequests
-    await fetchRequests();
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to approve request");
-  }
-};
+    console.log("Approving request:", reqId, req.assetId, req.email, user.email);
 
+    try {
+      const approveInfo = {
+        hrEmail: user.email,
+        employeeEmail: req.email,
+        assetId: req.assetId,
+      };
+      const res = await axiosSecure.put(
+        `/asset_requests/${reqId}/approve`,
+        approveInfo
+      );
 
+      if (res.data.success) {
+        toast.success("Request approved!");
+        // Update UI instantly without refetching all requests
+        setRequests((prev) =>
+          prev.map((r) =>
+            r._id === reqId ? { ...r, status: "approved" } : r
+          )
+        );
+      } else {
+        toast.error(res.data.message || "Failed to approve request");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to approve request");
+    }
+  };
 
-
-  const handleReject = async (reqId, req) => {
-  try {
-    await axiosSecure.put(`/asset_requests/${reqId}/reject`);
-    toast.success("Request rejected!");
-    await fetchRequests(); // UI auto-refresh
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to reject request");
-  }
-};
-
+  const handleReject = async (reqId) => {
+    try {
+      const res = await axiosSecure.put(`/asset_requests/${reqId}/reject`);
+      if (res.data.success) {
+        toast.success("Request rejected!");
+        setRequests((prev) =>
+          prev.map((r) =>
+            r._id === reqId ? { ...r, status: "rejected" } : r
+          )
+        );
+      } else {
+        toast.error(res.data.message || "Failed to reject request");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to reject request");
+    }
+  };
 
   const handleDelete = async (reqId) => {
     const confirmDelete = confirm("Are you sure you want to delete this request?");
@@ -75,7 +97,7 @@ const handleApprove = async (reqId, req) => {
       const res = await axiosSecure.delete(`/asset_requests/${reqId}`);
       if (res.data.deletedCount > 0) {
         toast.success("Request deleted!");
-        fetchRequests();
+        setRequests((prev) => prev.filter((r) => r._id !== reqId));
       } else {
         toast.error("Delete failed!");
       }
@@ -104,6 +126,14 @@ const handleApprove = async (reqId, req) => {
             </tr>
           </thead>
           <tbody>
+            {requests.length === 0 && (
+              <tr>
+                <td colSpan="8" className="text-center py-10 text-gray-500">
+                  No requests found…
+                </td>
+              </tr>
+            )}
+
             {requests.map((req, i) => (
               <tr key={req._id} className="hover:bg-white/10">
                 <th className="sticky left-0 bg-white dark:bg-gray-900 z-10 px-4 py-2">
@@ -140,7 +170,7 @@ const handleApprove = async (reqId, req) => {
                           <MdApproval className="text-lg" />
                         </button>
                         <button
-                          onClick={() => handleReject(req._id, req)}
+                          onClick={() => handleReject(req._id)}
                           className="btn btn-outline btn-square text-yellow-500 hover:bg-yellow-500 hover:text-black"
                         >
                           <TbPlayerEject className="text-lg" />
@@ -159,10 +189,6 @@ const handleApprove = async (reqId, req) => {
             ))}
           </tbody>
         </table>
-
-        {requests.length === 0 && (
-          <p className="text-center py-10 text-gray-500">No requests found…</p>
-        )}
       </div>
 
       {/* Pagination */}

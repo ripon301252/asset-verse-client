@@ -15,49 +15,48 @@ const MyAssets = () => {
   const [loading, setLoading] = useState(true);
   const axiosSecure = useAxiosSecure();
 
- useEffect(() => {
-  if (!user) return;
+  useEffect(() => {
+    if (!user) return;
 
-  const fetchMyAssets = async () => {
-    try {
-      const res = await axiosSecure.get(
-        `/asset_requests?email=${user.email}`
-      );
-      const requests = res.data.requests || []; // ✅ fix here
+    const fetchMyAssets = async () => {
+      try {
+        const res = await axiosSecure.get(
+          `/asset_requests?email=${user.email}`
+        );
+        const requests = res.data.requests || []; // ✅ fix here
 
-      const assetsWithDetails = await Promise.all(
-        requests.map(async (req) => {
-          if (!req.assetId) return req;
+        const assetsWithDetails = await Promise.all(
+          requests.map(async (req) => {
+            if (!req.assetId) return req;
 
-          try {
-            const assetRes = await axiosSecure.get(`/assets/${req.assetId}`);
-            const assetDetails = assetRes.data;
+            try {
+              const assetRes = await axiosSecure.get(`/assets/${req.assetId}`);
+              const assetDetails = assetRes.data;
 
-            return {
-              ...req,
-              assetName: assetDetails.name || req.assetName,
-              image: assetDetails.image || "",
-              type: assetDetails.type || "",
-              company: assetDetails.company || "",
-            };
-          } catch (err) {
-            console.error("Asset details fetch failed:", err);
-            return req;
-          }
-        })
-      );
+              return {
+                ...req,
+                assetName: assetDetails.name || req.assetName,
+                image: assetDetails.image || "",
+                type: assetDetails.type || "",
+                company: assetDetails.company || "",
+              };
+            } catch (err) {
+              console.error("Asset details fetch failed:", err);
+              return req;
+            }
+          })
+        );
 
-      setMyAssets(assetsWithDetails);
-      setLoading(false);
-    } catch (err) {
-      console.error(err);
-      setLoading(false);
-    }
-  };
+        setMyAssets(assetsWithDetails);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setLoading(false);
+      }
+    };
 
-  fetchMyAssets();
-}, [user, axiosSecure]);
-
+    fetchMyAssets();
+  }, [user, axiosSecure]);
 
   // Delete asset request
   // const handleDelete = async (id) => {
@@ -228,8 +227,8 @@ const MyAssets = () => {
                   <td>
                     <div className="flex justify-start items-center gap-3 whitespace-nowrap">
                       {/* Return */}
-                      {asset.type === "Returnable" &&
-                        asset.status === "approved" && (
+                      {asset.type?.toLowerCase() === "returnable" &&
+                        asset.status?.toLowerCase() === "approved" &&  (
                           <div
                             className="relative overflow-visible tooltip tooltip-bottom"
                             data-tip="Return"
@@ -243,6 +242,7 @@ const MyAssets = () => {
                             </button>
                           </div>
                         )}
+                       
 
                       {/* Request Asset */}
                       <div
@@ -257,6 +257,8 @@ const MyAssets = () => {
                           <VscGitPullRequestGoToChanges className="text-lg" />
                         </Link>
                       </div>
+
+                     
 
                       {/* Delete */}
                       {/* <div
