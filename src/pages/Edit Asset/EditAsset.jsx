@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import useAxiosSecure from "../../Hooks/useAxiosSecure";
-import axios from "axios";
+
 import toast from "react-hot-toast";
+import useAxios from "../../Hooks/useAxios";
 
 const EditAsset = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const axiosSecure = useAxiosSecure();
+  const axios = useAxios();
 
   const [asset, setAsset] = useState({
     name: "",
@@ -24,12 +24,12 @@ const EditAsset = () => {
   // Fetch Asset Data
   // ===========================
   useEffect(() => {
-    axiosSecure
+    axios
       .get(`/assets/${id}`)
       .then((res) => setAsset(res.data))
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
-  }, [id, axiosSecure]);
+  }, [id, axios]);
 
   // ===========================
   // Input Handle
@@ -76,7 +76,7 @@ const EditAsset = () => {
   updatedData.image = imageUrl;
 
   try {
-    const res = await axiosSecure.put(`/assets/${id}`, updatedData);
+    const res = await axios.put(`/assets/${id}`, updatedData);
 
     if (res.data.success) {
       toast.success("Asset updated successfully!");

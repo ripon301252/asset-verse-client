@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import useAuth from "./useAuth";
-import useAxiosSecure from "./useAxiosSecure";
+import useAxios from "./useAxios";
+
 
 const useRole = () => {
   const { user } = useAuth();
-  const axiosSecure = useAxiosSecure();
+  const axios = useAxios()
   const [role, setRole] = useState("user");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -14,7 +15,7 @@ const useRole = () => {
     const fetchRole = async () => {
       setIsLoading(true);
       try {
-        const res = await axiosSecure.get(`/users/${user.email}`);
+        const res = await axios.get(`/users/${user.email}`);
         setRole(res.data?.role || "user");
         console.log("Fetched role:", res.data?.role || "user");
       } catch (err) {
@@ -26,7 +27,7 @@ const useRole = () => {
     };
 
     fetchRole();
-  }, [user?.email, axiosSecure]); // ✅ role remove
+  }, [user?.email, axios]); // ✅ role remove
 
   return { role, isLoading };
 };

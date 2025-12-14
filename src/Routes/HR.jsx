@@ -18,10 +18,9 @@ const HR = ({ children }) => {
 
 
    // Role check
-  if (role.toLowerCase() !== "hr") {
-     return <Forbidden />;
-  }
-
+  if (!role || role.toLowerCase() !== "hr") {
+  return <Forbidden />;
+}
 
   return children;
 };

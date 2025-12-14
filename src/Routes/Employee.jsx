@@ -10,7 +10,7 @@ const Employee = ({ children }) => {
   console.log("Logged in user:", user);
   console.log("Fetched role:", role);
 
-  // ⛔ Step 1: Auth or Role loading
+  //  Step 1: Auth or Role loading
   if (loading || roleLoading) {
     return (
       <div className="flex justify-center items-center py-16">
@@ -23,10 +23,9 @@ const Employee = ({ children }) => {
 
 
  
-  if (role.toLowerCase() !== "employee") {
-    return <Forbidden />;
-  }
-
+  if (!role || role.toLowerCase() !== "employee") {
+  return <Forbidden />;
+}
   return children;
 };
 

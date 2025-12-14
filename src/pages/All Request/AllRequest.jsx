@@ -34,41 +34,65 @@ const AllRequests = () => {
     fetchRequests();
   }, [page]);
 
+  // const handleApprove = async (reqId, req) => {
+  //   if (!req.assetId || !req.email) {
+  //     toast.error("Missing asset or employee info");
+  //     return;
+  //   }
+
+  //   console.log("Approving request:", reqId, req.assetId, req.email, user.email);
+
+  //   try {
+  //     const approveInfo = {
+  //       hrEmail: user.email,
+  //       employeeEmail: req.email,
+  //       assetId: req.assetId,
+  //     };
+  //     const res = await axiosSecure.put(
+  //       `/asset_requests/${reqId}/approve`,
+  //       approveInfo
+  //     );
+
+  //     if (res.data.success) {
+  //       toast.success("Request approved!");
+  //       // Update UI instantly without refetching all requests
+  //       setRequests((prev) =>
+  //         prev.map((r) =>
+  //           r._id === reqId ? { ...r, status: "approved" } : r
+  //         )
+  //       );
+  //     } else {
+  //       toast.error(res.data.message || "Failed to approve request");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to approve request");
+  //   }
+  // };
+
   const handleApprove = async (reqId, req) => {
-    if (!req.assetId || !req.email) {
-      toast.error("Missing asset or employee info");
-      return;
-    }
-
-    console.log("Approving request:", reqId, req.assetId, req.email, user.email);
-
-    try {
-      const approveInfo = {
+  try {
+    const res = await axiosSecure.put(
+      `/asset_requests/${reqId}/approve`,
+      {
         hrEmail: user.email,
         employeeEmail: req.email,
         assetId: req.assetId,
-      };
-      const res = await axiosSecure.put(
-        `/asset_requests/${reqId}/approve`,
-        approveInfo
-      );
-
-      if (res.data.success) {
-        toast.success("Request approved!");
-        // Update UI instantly without refetching all requests
-        setRequests((prev) =>
-          prev.map((r) =>
-            r._id === reqId ? { ...r, status: "approved" } : r
-          )
-        );
-      } else {
-        toast.error(res.data.message || "Failed to approve request");
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to approve request");
+    );
+
+    if (res.data.success) {
+      toast.success("Request approved!");
+      fetchRequests(); // ✅ reload issue fixed
+    } else {
+      toast.error(res.data.message || "Approve failed");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error(err.response?.data?.message || "Failed to approve request");
+  }
+};
+
 
   const handleReject = async (reqId) => {
     try {
