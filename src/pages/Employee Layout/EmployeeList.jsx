@@ -218,7 +218,7 @@ const EmployeeList = () => {
   const { role, isLoading: roleLoading } = useRole();
   const limit = 10;
 
-  const companyName = localStorage.getItem("companyName") || "";
+  const companyName = (localStorage.getItem("companyName") || "").trim();
 
   // Fetch employees
   const fetchEmployees = async () => {
@@ -243,26 +243,28 @@ const EmployeeList = () => {
 
   // Remove employee affiliation
   const handleRemove = async (id) => {
-    const confirmDelete = confirm(
-      "Are you sure you want to remove this employee?"
-    );
-    if (!confirmDelete) return;
+  const confirmDelete = confirm(
+    "Are you sure you want to remove this employee?"
+  );
+  if (!confirmDelete) return;
 
-    try {
-      const res = await axiosSecure.delete(`/affiliations/${id}`, {
-        data: { companyName },
-      });
-      if (res.data.success) {
-        toast.success("Employee removed!");
-        setEmployees((prev) => prev.filter((emp) => emp._id !== id));
-      } else {
-        toast.error(res.data.message || "Failed to remove employee");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to remove employee");
+  try {
+    const res = await axiosSecure.delete(`/affiliations/${id}`, {
+      data: { companyName: companyName.toLowerCase().trim() }, // ✅ lowercase
+    });
+
+    if (res.data.success) {
+      toast.success("Employee removed!");
+      setEmployees((prev) => prev.filter((emp) => emp._id !== id));
+    } else {
+      toast.error(res.data.message || "Failed to remove employee");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to remove employee");
+  }
+};
+
 
 
 //   const handleRemove = async (id, firebaseUid) => {
