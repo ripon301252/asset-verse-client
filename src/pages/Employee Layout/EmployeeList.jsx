@@ -10,13 +10,13 @@ const EmployeeList = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalEmployees, setTotalEmployees] = useState(0);
-  const { user } = useAuth();
 
-  const axios = useAxios()
+  const { user } = useAuth();
+  const axios = useAxios();
   const { role, isLoading: roleLoading } = useRole();
   const limit = 10;
 
-  // Fetch all employees without depending on companyName
+  // Fetch employees ONLY from employeeAffiliations
   const fetchEmployees = async () => {
     if (role !== "hr") return;
 
@@ -24,10 +24,11 @@ const EmployeeList = () => {
       const res = await axios.get("/hr/employees", {
         params: { page, limit, search },
         headers: {
-          hremail: user.email, // 🔥 secure source
+          hremail: user.email, // HR's secure email
         },
       });
 
+      // Backend should return { employees: [...], total: number }
       setEmployees(res.data.employees);
       setTotalEmployees(res.data.total);
     } catch (err) {
@@ -40,21 +41,20 @@ const EmployeeList = () => {
     fetchEmployees();
   }, [role, page, search]);
 
-  // Remove employee (affiliation independent)
-  const handleRemove = async (id) => {
+  // Remove employee affiliation
+  const handleRemove = async (affiliationId) => {
     const confirmDelete = confirm(
       "Are you sure you want to remove this employee?"
     );
     if (!confirmDelete) return;
 
     try {
-      const res = await axios.delete(`/affiliations/${id}`, {
-        data: { companyName: "dummy" }, // backend requires companyName, can be ignored if backend logic is updated
-      });
-
+      const res = await axios.delete(`/affiliations/${affiliationId}`);
       if (res.data.success) {
         toast.success("Employee removed!");
-        setEmployees((prev) => prev.filter((emp) => emp._id !== id));
+        setEmployees((prev) =>
+          prev.filter((emp) => emp.affiliationId !== affiliationId)
+        );
       } else {
         toast.error(res.data.message || "Failed to remove employee");
       }
@@ -99,15 +99,14 @@ const EmployeeList = () => {
               <th>#</th>
               <th>Employee</th>
               <th>Email</th>
-              <th>Role</th>
               <th>Status</th>
               <th>Joined Date</th>
-              {role === "hr" && <th>Actions</th>}
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {employees.map((emp, i) => (
-              <tr key={emp._id} className="hover:bg-white/10">
+              <tr key={emp.affiliationId} className="hover:bg-white/10">
                 <td>{(page - 1) * limit + i + 1}</td>
                 <td className="flex items-center gap-3">
                   {emp.photoURL ? (
@@ -124,19 +123,16 @@ const EmployeeList = () => {
                   <span>{emp.name}</span>
                 </td>
                 <td>{emp.email}</td>
-                <td>{emp.role}</td>
-                <td>{emp.status || "active"}</td>
-                <td>{new Date(emp.createdAt).toLocaleDateString()}</td>
-                {role === "hr" && (
-                  <td className="flex gap-3">
-                    <button
-                      onClick={() => handleRemove(emp._id)}
-                      className="btn btn-outline btn-square text-red-400 hover:bg-red-400 hover:text-black"
-                    >
-                      <IoTrashOutline className="text-lg" />
-                    </button>
-                  </td>
-                )}
+                <td>{emp.status}</td>
+                <td>{new Date(emp.joinedAt).toLocaleDateString()}</td>
+                <td className="flex gap-3">
+                  <button
+                    onClick={() => handleRemove(emp.affiliationId)}
+                    className="btn btn-outline btn-square text-red-400 hover:bg-red-400 hover:text-black"
+                  >
+                    <IoTrashOutline className="text-lg" />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

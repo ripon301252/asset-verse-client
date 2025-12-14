@@ -7,6 +7,7 @@ import { MdAddToDrive } from "react-icons/md";
 import toast from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import AllRequests from "../All Request/AllRequest";
 
 const AssetList = () => {
   const [search, setSearch] = useState("");
@@ -50,7 +51,9 @@ const AssetList = () => {
 
   // Delete Handler
   const handleDelete = async (id) => {
-    const confirmDelete = confirm("Are you sure you want to delete this asset?");
+    const confirmDelete = confirm(
+      "Are you sure you want to delete this asset?"
+    );
     if (!confirmDelete) return;
 
     try {
@@ -98,7 +101,10 @@ const AssetList = () => {
       <div className="flex flex-col md:flex-row justify-between gap-3 mb-6 items-center">
         <h2 className="text-2xl font-bold">Asset List</h2>
         <div className="flex gap-2 flex-wrap">
-          <button onClick={handleExportPDF} className="btn btn-outline btn-success">
+          <button
+            onClick={handleExportPDF}
+            className="btn btn-outline btn-success"
+          >
             Export PDF
           </button>
           <Link to={`/addAsset`} className="btn btn-primary">
@@ -145,11 +151,29 @@ const AssetList = () => {
           <tbody>
             {assets.map((asset, i) => (
               <tr key={asset._id} className="hover:bg-white/10">
-                <td className="sticky left-0 bg-white dark:bg-gray-900 z-10 px-4 py-2">{i + 1 + (page-1)*limit}</td>
-                <td>{asset.image ? <img src={asset.image} alt={asset.name} className="w-14 h-14 rounded-md border" /> : "-"}</td>
+                <td className="sticky left-0 bg-white dark:bg-gray-900 z-10 px-4 py-2">
+                  {i + 1 + (page - 1) * limit}
+                </td>
+                <td>
+                  {asset.image ? (
+                    <img
+                      src={asset.image}
+                      alt={asset.name}
+                      className="w-14 h-14 rounded-md border"
+                    />
+                  ) : (
+                    "-"
+                  )}
+                </td>
                 <td className="font-semibold">{asset.name}</td>
                 <td>
-                  <span className={`badge truncate max-w-[100px] ${asset.type === "Returnable" ? "badge-primary" : "badge-secondary"}`}>
+                  <span
+                    className={`badge truncate max-w-[100px] ${
+                      asset.type === "Returnable"
+                        ? "badge-primary"
+                        : "badge-secondary"
+                    }`}
+                  >
                     {asset.type}
                   </span>
                 </td>
@@ -158,13 +182,25 @@ const AssetList = () => {
                 <td>{new Date(asset.createdAt).toLocaleDateString()}</td>
                 <td>
                   <div className="flex justify-start items-center gap-3 whitespace-nowrap">
-                    <Link to={`/editAsset/${asset._id}`} className="btn btn-outline btn-square text-blue-500 hover:bg-blue-500 hover:text-black" title="Edit">
+                    <Link
+                      to={`/editAsset/${asset._id}`}
+                      className="btn btn-outline btn-square text-blue-500 hover:bg-blue-500 hover:text-black"
+                      title="Edit"
+                    >
                       <FaRegEdit className="text-lg" />
                     </Link>
-                    <Link to={`/addAsset`} className="btn btn-outline btn-square text-green-500 hover:bg-green-500 hover:text-black" title="Add Asset">
+                    <Link
+                      to={`/addAsset`}
+                      className="btn btn-outline btn-square text-green-500 hover:bg-green-500 hover:text-black"
+                      title="Add Asset"
+                    >
                       <MdAddToDrive className="text-lg" />
                     </Link>
-                    <button onClick={() => handleDelete(asset._id)} className="btn btn-outline btn-square text-[#f87171] hover:bg-[#f87171] hover:text-black" title="Delete">
+                    <button
+                      onClick={() => handleDelete(asset._id)}
+                      className="btn btn-outline btn-square text-[#f87171] hover:bg-[#f87171] hover:text-black"
+                      title="Delete"
+                    >
                       <IoTrashOutline className="text-lg" />
                     </button>
                   </div>
@@ -181,10 +217,25 @@ const AssetList = () => {
 
       {/* Pagination */}
       <div className="flex justify-center mt-6 gap-4">
-        <button className="btn" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>Previous</button>
-        <span className="flex items-center px-2">{page} / {totalPages}</span>
-        <button className="btn" disabled={page === totalPages || totalPages === 0} onClick={() => setPage((p) => p + 1)}>Next</button>
+        <button
+          className="btn"
+          disabled={page === 1}
+          onClick={() => setPage((p) => p - 1)}
+        >
+          Previous
+        </button>
+        <span className="flex items-center px-2">
+          {page} / {totalPages}
+        </span>
+        <button
+          className="btn"
+          disabled={page === totalPages || totalPages === 0}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          Next
+        </button>
       </div>
+
     </div>
   );
 };

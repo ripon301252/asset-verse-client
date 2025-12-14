@@ -59,52 +59,58 @@ const MyAssets = () => {
   }, [user, axiosSecure]);
 
   // Delete asset request
-  // const handleDelete = async (id) => {
-  //   const confirmDelete = window.confirm(
-  //     "Are you sure you want to delete this asset request?"
-  //   );
-  //   if (!confirmDelete) return;
-
-  //   try {
-  //     const res = await axiosSecure.delete(`/asset_requests/${id}`);
-  //     if (res.data.deletedCount > 0 || res.data.result?.deletedCount > 0) {
-  //       toast.success("Asset request deleted successfully!"); // toast
-  //       setMyAssets((prev) => prev.filter((asset) => asset._id !== id));
-  //     } else {
-  //       toast.error("Failed to delete asset request!"); // toast
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Delete failed!"); // toast
-  //   }
-  // };
-
-  // Return asset
-  const handleReturn = async (id) => {
-    const confirmReturn = window.confirm(
-      "Are you sure you want to return this asset?"
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this asset request?"
     );
-    if (!confirmReturn) return;
+    if (!confirmDelete) return;
 
     try {
-      const res = await axiosSecure.put(`/asset_requests/${id}/return`);
-      const data = res.data;
-
-      if (data.modifiedCount > 0 || data.success) {
-        toast.success("Asset returned successfully!"); // toast
-        setMyAssets((prev) =>
-          prev.map((asset) =>
-            asset._id === id ? { ...asset, status: "returned" } : asset
-          )
-        );
+      const res = await axiosSecure.delete(`/asset_requests/${id}`);
+      if (res.data.deletedCount > 0 || res.data.result?.deletedCount > 0) {
+        toast.success("Asset request deleted successfully!"); // toast
+        setMyAssets((prev) => prev.filter((asset) => asset._id !== id));
       } else {
-        toast.error("Failed to return asset!"); // toast
+        toast.error("Failed to delete asset request!"); // toast
       }
     } catch (err) {
       console.error(err);
-      toast.error("Return failed!"); // toast
+      toast.error("Delete failed!"); // toast
     }
   };
+
+  // Return asset
+  const handleReturn = async (id) => {
+  const confirmReturn = window.confirm(
+    "Are you sure you want to return this asset?"
+  );
+  if (!confirmReturn) return;
+
+  try {
+    const res = await axiosSecure.put(`/asset_requests/${id}/return`);
+    const data = res.data;
+    console.log("Return response:", data); // check response
+
+    if (data.modifiedCount > 0 || data.success) {
+      toast.success("Asset returned successfully!");
+
+      // state update
+      setMyAssets((prev) =>
+        prev.map((asset) =>
+          asset._id.toString() === id.toString()
+            ? { ...asset, status: "returned" }
+            : asset
+        )
+      );
+    } else {
+      toast.error("Failed to return asset!");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Return failed!");
+  }
+};
+
 
   // Export PDF
   const handleExportPDF = () => {
@@ -228,7 +234,7 @@ const MyAssets = () => {
                     <div className="flex justify-start items-center gap-3 whitespace-nowrap">
                       {/* Return */}
                       {asset.type?.toLowerCase() === "returnable" &&
-                        asset.status?.toLowerCase() === "approved" &&  (
+                        asset.status?.toLowerCase() === "approved" && (
                           <div
                             className="relative overflow-visible tooltip tooltip-bottom"
                             data-tip="Return"
@@ -242,7 +248,6 @@ const MyAssets = () => {
                             </button>
                           </div>
                         )}
-                       
 
                       {/* Request Asset */}
                       <div
@@ -258,10 +263,8 @@ const MyAssets = () => {
                         </Link>
                       </div>
 
-                     
-
                       {/* Delete */}
-                      {/* <div
+                      <div
                         className="relative overflow-visible tooltip tooltip-bottom"
                         data-tip="Delete"
                       >
@@ -272,7 +275,7 @@ const MyAssets = () => {
                         >
                           <IoTrashOutline className="text-lg" />
                         </button>
-                      </div> */}
+                      </div>
                     </div>
                   </td>
                 </tr>
