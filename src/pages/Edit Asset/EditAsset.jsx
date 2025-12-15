@@ -32,12 +32,16 @@ const EditAsset = () => {
   }, [id, axios]);
 
   // ===========================
-  // Input Handle
+  // quantity Handle
   // ===========================
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setAsset((prev) => ({ ...prev, [name]: value }));
-  };
+ const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  setAsset((prev) => ({
+    ...prev,
+    [name]: name === "quantity" ? Number(value) : value,
+  }));
+};
 
   // ===========================
   // Image Change
