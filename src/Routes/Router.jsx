@@ -186,7 +186,7 @@ export const router = createBrowserRouter([
     ),
     children: [
       {
-        path: "hrPackage",
+        path: "hrPackage/:hrId",
         element: <HRPackageUpgrade />,
       },
       {

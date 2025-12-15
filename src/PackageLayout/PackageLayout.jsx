@@ -87,7 +87,7 @@ const PackageLayout = () => {
 
               {/* List item */}
               <li>
-                <NavLink to={`/packageUpgrade/hrPackage`} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="HR Package">
+                <NavLink to={`/packageUpgrade/hrPackage/:hrId`} className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="HR Package">
                   <FaAddressCard className="text-lg font-bold" />
                   <span className="is-drawer-close:hidden">HR Package</span>
                 </NavLink>

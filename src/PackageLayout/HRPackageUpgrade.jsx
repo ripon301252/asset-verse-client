@@ -1,17 +1,18 @@
 // components/HRPackageUpgrade.jsx
 import React from "react";
 import useAxios from "../Hooks/useAxios";
+import useAuth from "../Hooks/useAuth";
 
 
-const HRPackageUpgrade = ({ hrId }) => {
+const HRPackageUpgrade = () => {
   const axios = useAxios()
-
+  const {user} = useAuth()
   const handleUpgrade = async (packageType) => {
     let amount = packageType === "Standard" ? 20 : 50;
 
     try {
       const res = await axios.post("/api/stripe/create-checkout-session", {
-        hrId,
+        hrEmail: user.email,
         packageType,
         amount,
       });

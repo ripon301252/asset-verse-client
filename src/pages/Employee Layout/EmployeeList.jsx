@@ -42,27 +42,51 @@ const EmployeeList = () => {
   }, [role, page, search]);
 
   // Remove employee affiliation
-  const handleRemove = async (affiliationId) => {
-    const confirmDelete = confirm(
-      "Are you sure you want to remove this employee?"
-    );
-    if (!confirmDelete) return;
+  // const handleRemove = async (affiliationId) => {
+  //   const confirmDelete = confirm(
+  //     "Are you sure you want to remove this employee?"
+  //   );
+  //   if (!confirmDelete) return;
 
-    try {
-      const res = await axios.delete(`/affiliations/${affiliationId}`);
-      if (res.data.success) {
-        toast.success("Employee removed!");
-        setEmployees((prev) =>
-          prev.filter((emp) => emp.affiliationId !== affiliationId)
-        );
-      } else {
-        toast.error(res.data.message || "Failed to remove employee");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to remove employee");
+  //   try {
+  //     const res = await axios.delete(`/affiliations/${affiliationId}`);
+  //     if (res.data.success) {
+  //       toast.success("Employee removed!");
+  //       setEmployees((prev) =>
+  //         prev.filter((emp) => emp.affiliationId !== affiliationId)
+  //       );
+  //     } else {
+  //       toast.error(res.data.message || "Failed to remove employee");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to remove employee");
+  //   }
+  // };
+
+  const handleRemove = async (affiliationId) => {
+  const confirmDelete = confirm("Are you sure you want to remove this employee?");
+  if (!confirmDelete) return;
+
+  try {
+    const res = await axios.delete(`/affiliations/${affiliationId}`, {
+      headers: { hremail: user.email } // HR email পাঠানো লাগবে
+    });
+
+    if (res.data.success) {
+      toast.success("Employee removed!");
+      setEmployees(prev =>
+        prev.filter(emp => emp.affiliationId !== affiliationId)
+      );
+    } else {
+      toast.error(res.data.message || "Failed to remove employee");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to remove employee");
+  }
+};
+
 
   const totalPages = Math.ceil(totalEmployees / limit);
 
