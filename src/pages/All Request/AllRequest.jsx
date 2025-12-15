@@ -34,6 +34,8 @@ const AllRequests = () => {
     fetchRequests();
   }, [page, user.email]); // ✅ add dependencies to prevent stale closure
 
+  
+
   const handleApprove = async (reqId, req) => {
     if (!req.assetId || !req.email) {
       toast.error("Missing asset or employee info");
