@@ -7,6 +7,7 @@ import { FaAddressCard, FaCcAmazonPay, FaChartArea } from "react-icons/fa";
 const PackageLayout = () => {
   return (
     <div>
+      
       <div className="drawer lg:drawer-open">
         <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">

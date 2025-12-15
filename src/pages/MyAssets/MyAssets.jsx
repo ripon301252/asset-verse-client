@@ -7,23 +7,29 @@ import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { PiKeyReturnBold } from "react-icons/pi";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import toast from "react-hot-toast"; // import toast
+import toast from "react-hot-toast";
 
 const MyAssets = () => {
   const { user } = useAuth();
   const [myAssets, setMyAssets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 10;
+
   const axiosSecure = useAxiosSecure();
 
   useEffect(() => {
     if (!user) return;
 
     const fetchMyAssets = async () => {
+      setLoading(true);
       try {
         const res = await axiosSecure.get(
-          `/asset_requests?email=${user.email}`
+          `/asset_requests?email=${user.email}&page=${page}&limit=${limit}`
         );
-        const requests = res.data.requests || []; // ✅ fix here
+        const requests = res.data.requests || [];
+        setTotal(res.data.total || 0);
 
         const assetsWithDetails = await Promise.all(
           requests.map(async (req) => {
@@ -56,9 +62,8 @@ const MyAssets = () => {
     };
 
     fetchMyAssets();
-  }, [user, axiosSecure]);
+  }, [user, axiosSecure, page]);
 
-  // Delete asset request
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this asset request?"
@@ -68,51 +73,44 @@ const MyAssets = () => {
     try {
       const res = await axiosSecure.delete(`/asset_requests/${id}`);
       if (res.data.deletedCount > 0 || res.data.result?.deletedCount > 0) {
-        toast.success("Asset request deleted successfully!"); // toast
+        toast.success("Asset request deleted successfully!");
         setMyAssets((prev) => prev.filter((asset) => asset._id !== id));
       } else {
-        toast.error("Failed to delete asset request!"); // toast
+        toast.error("Failed to delete asset request!");
       }
     } catch (err) {
       console.error(err);
-      toast.error("Delete failed!"); // toast
+      toast.error("Delete failed!");
     }
   };
 
-  // Return asset
   const handleReturn = async (id) => {
-  const confirmReturn = window.confirm(
-    "Are you sure you want to return this asset?"
-  );
-  if (!confirmReturn) return;
+    const confirmReturn = window.confirm(
+      "Are you sure you want to return this asset?"
+    );
+    if (!confirmReturn) return;
 
-  try {
-    const res = await axiosSecure.put(`/asset_requests/${id}/return`);
-    const data = res.data;
-    console.log("Return response:", data); // check response
-
-    if (data.modifiedCount > 0 || data.success) {
-      toast.success("Asset returned successfully!");
-
-      // state update
-      setMyAssets((prev) =>
-        prev.map((asset) =>
-          asset._id.toString() === id.toString()
-            ? { ...asset, status: "returned" }
-            : asset
-        )
-      );
-    } else {
-      toast.error("Failed to return asset!");
+    try {
+      const res = await axiosSecure.put(`/asset_requests/${id}/return`);
+      const data = res.data;
+      if (data.modifiedCount > 0 || data.success) {
+        toast.success("Asset returned successfully!");
+        setMyAssets((prev) =>
+          prev.map((asset) =>
+            asset._id.toString() === id.toString()
+              ? { ...asset, status: "returned" }
+              : asset
+          )
+        );
+      } else {
+        toast.error("Failed to return asset!");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Return failed!");
     }
-  } catch (err) {
-    console.error(err);
-    toast.error("Return failed!");
-  }
-};
+  };
 
-
-  // Export PDF
   const handleExportPDF = () => {
     const doc = new jsPDF();
     doc.text("AssetVerse - My Assets Report", 14, 10);
@@ -127,7 +125,6 @@ const MyAssets = () => {
     ];
 
     const tableRows = [];
-
     myAssets.forEach((asset) => {
       tableRows.push([
         asset.assetName,
@@ -147,6 +144,8 @@ const MyAssets = () => {
     });
     doc.save("my_assets.pdf");
   };
+
+  const totalPages = Math.ceil(total / limit);
 
   if (loading) {
     return (
@@ -173,116 +172,128 @@ const MyAssets = () => {
           You have not requested or been assigned any assets yet.
         </p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="table w-full">
-            <thead>
-              <tr className="bg-base-200">
-                <th>#</th>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Company</th>
-                <th>Quantity</th>
-                <th>Status</th>
-                <th>Reason</th>
-                <th>Date</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {myAssets.map((asset, index) => (
-                <tr key={asset._id} className="hover:bg-white/10">
-                  <th className="sticky left-0 bg-white dark:bg-gray-900 z-10 px-4 py-2">
-                    {index + 1}
-                  </th>
-
-                  <td>
-                    {asset.image ? (
-                      <img
-                        src={asset.image}
-                        alt={asset.assetName}
-                        className="w-12 h-12 object-cover rounded"
-                      />
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-
-                  <td className="capitalize">{asset.assetName}</td>
-                  <td>{asset.type || "-"}</td>
-                  <td>{asset.company || "-"}</td>
-                  <td>{asset.quantity}</td>
-                  <td>
-                    <span
-                      className={`font-bold ${
-                        asset.status === "approved"
-                          ? "text-green-600"
-                          : asset.status === "rejected"
-                          ? "text-red-600"
-                          : asset.status === "returned"
-                          ? "text-blue-600"
-                          : "text-yellow-600"
-                      }`}
-                    >
-                      {asset.status}
-                    </span>
-                  </td>
-                  <td>{asset.reason || "-"}</td>
-                  <td>{new Date(asset.createdAt).toLocaleDateString()}</td>
-
-                  <td>
-                    <div className="flex justify-start items-center gap-3 whitespace-nowrap">
-                      {/* Return */}
-                      {asset.type?.toLowerCase() === "returnable" &&
-                        asset.status?.toLowerCase() === "approved" && (
-                          <div
-                            className="relative overflow-visible tooltip tooltip-bottom"
-                            data-tip="Return"
-                          >
-                            <button
-                              onClick={() => handleReturn(asset._id)}
-                              className="btn btn-outline btn-square text-green-500 hover:bg-green-500 hover:text-black"
-                              title="Return"
-                            >
-                              <PiKeyReturnBold className="text-lg" />
-                            </button>
-                          </div>
-                        )}
-
-                      {/* Request Asset */}
-                      <div
-                        className="relative overflow-visible tooltip tooltip-bottom"
-                        data-tip="Request Asset"
-                      >
-                        <Link
-                          to={`/requestAsset`}
-                          className="btn btn-outline btn-square text-yellow-500 hover:bg-yellow-500 hover:text-black"
-                          title="Request Asset"
-                        >
-                          <VscGitPullRequestGoToChanges className="text-lg" />
-                        </Link>
-                      </div>
-
-                      {/* Delete */}
-                      <div
-                        className="relative overflow-visible tooltip tooltip-bottom"
-                        data-tip="Delete"
-                      >
-                        <button
-                          onClick={() => handleDelete(asset._id)}
-                          className="btn btn-outline btn-square text-[#f87171] hover:bg-[#f87171] hover:text-black"
-                          title="Delete"
-                        >
-                          <IoTrashOutline className="text-lg" />
-                        </button>
-                      </div>
-                    </div>
-                  </td>
+        <>
+          <div className="overflow-x-auto">
+            <table className="table w-full">
+              <thead>
+                <tr className="bg-base-200">
+                  <th>#</th>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Company</th>
+                  <th>Quantity</th>
+                  <th>Status</th>
+                  <th>Reason</th>
+                  <th>Date</th>
+                  <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {myAssets.map((asset, index) => (
+                  <tr key={asset._id} className="hover:bg-white/10">
+                    <th className="sticky left-0 bg-white dark:bg-gray-900 z-10 px-4 py-2">
+                      {(page - 1) * limit + index + 1}
+                    </th>
+                    <td>
+                      {asset.image ? (
+                        <img
+                          src={asset.image}
+                          alt={asset.assetName}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                      ) : (
+                        "-"
+                      )}
+                    </td>
+                    <td className="capitalize">{asset.assetName}</td>
+                    <td>{asset.type || "-"}</td>
+                    <td>{asset.company || "-"}</td>
+                    <td>{asset.quantity}</td>
+                    <td>
+                      <span
+                        className={`font-bold ${
+                          asset.status === "approved"
+                            ? "text-green-600"
+                            : asset.status === "rejected"
+                            ? "text-red-600"
+                            : asset.status === "returned"
+                            ? "text-blue-600"
+                            : "text-yellow-600"
+                        }`}
+                      >
+                        {asset.status}
+                      </span>
+                    </td>
+                    <td>{asset.reason || "-"}</td>
+                    <td>{new Date(asset.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <div className="flex justify-start items-center gap-3 whitespace-nowrap">
+                        {asset.type?.toLowerCase() === "returnable" &&
+                          asset.status?.toLowerCase() === "approved" && (
+                            <div
+                              className="relative overflow-visible tooltip tooltip-bottom"
+                              data-tip="Return"
+                            >
+                              <button
+                                onClick={() => handleReturn(asset._id)}
+                                className="btn btn-outline btn-square text-green-500 hover:bg-green-500 hover:text-black"
+                              >
+                                <PiKeyReturnBold className="text-lg" />
+                              </button>
+                            </div>
+                          )}
+                        <div
+                          className="relative overflow-visible tooltip tooltip-bottom"
+                          data-tip="Request Asset"
+                        >
+                          <Link
+                            to={`/requestAsset`}
+                            className="btn btn-outline btn-square text-yellow-500 hover:bg-yellow-500 hover:text-black"
+                          >
+                            <VscGitPullRequestGoToChanges className="text-lg" />
+                          </Link>
+                        </div>
+                        <div
+                          className="relative overflow-visible tooltip tooltip-bottom"
+                          data-tip="Delete"
+                        >
+                          <button
+                            onClick={() => handleDelete(asset._id)}
+                            className="btn btn-outline btn-square text-[#f87171] hover:bg-[#f87171] hover:text-black"
+                          >
+                            <IoTrashOutline className="text-lg" />
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination Buttons */}
+          <div className="flex justify-center mt-6 gap-2">
+            <button
+              className="btn btn-sm btn-outline"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              Previous
+            </button>
+            <span className="px-4 py-1 font-semibold">
+              {page} / {totalPages}
+            </span>
+            <button
+              className="btn btn-sm btn-outline"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

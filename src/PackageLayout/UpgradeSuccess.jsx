@@ -13,17 +13,17 @@ const UpgradeSuccess = () => {
     const query = new URLSearchParams(location.search);
     const session_id = query.get("session_id");
     const hrEmail = query.get("hrEmail");
-    const packageType = query.get("packageType");
+    const packageId = query.get("packageId");
 
     const verifyPayment = async () => {
       try {
         const res = await axiosSecure.get(
-          `/api/stripe/success?session_id=${session_id}&hrEmail=${hrEmail}&packageType=${packageType}`
+          `/api/stripe/success?session_id=${session_id}&hrEmail=${hrEmail}&packageId=${packageId}`
         );
 
         if (res.data.success) {
           setStatus("success");
-          setMessage(`Payment Successful! Package upgraded to ${res.data.packageType}`);
+          setMessage(`Payment Successful! Package upgraded to ${res.data.packageId}`);
         } else {
           setStatus("error");
           setMessage("Payment verification failed.");

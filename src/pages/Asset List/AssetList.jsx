@@ -182,27 +182,38 @@ const AssetList = () => {
                 <td>{new Date(asset.createdAt).toLocaleDateString()}</td>
                 <td>
                   <div className="flex justify-start items-center gap-3 whitespace-nowrap">
-                    <Link
-                      to={`/editAsset/${asset._id}`}
-                      className="btn btn-outline btn-square text-blue-500 hover:bg-blue-500 hover:text-black"
-                      title="Edit"
+                    <div
+                      className="relative overflow-visible tooltip tooltip-bottom"
+                      data-tip="Edit Asset"
                     >
-                      <FaRegEdit className="text-lg" />
-                    </Link>
-                    <Link
-                      to={`/addAsset`}
-                      className="btn btn-outline btn-square text-green-500 hover:bg-green-500 hover:text-black"
-                      title="Add Asset"
+                      <Link
+                        to={`/editAsset/${asset._id}`}
+                        className="btn btn-outline btn-square text-blue-500 hover:bg-blue-500 hover:text-black"
+                      >
+                        <FaRegEdit className="text-lg" />
+                      </Link>
+                    </div>
+                    <div
+                      className="relative overflow-visible tooltip tooltip-bottom"
+                      data-tip="Add Asset"
                     >
-                      <MdAddToDrive className="text-lg" />
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(asset._id)}
-                      className="btn btn-outline btn-square text-[#f87171] hover:bg-[#f87171] hover:text-black"
-                      title="Delete"
-                    >
-                      <IoTrashOutline className="text-lg" />
-                    </button>
+                      <Link
+                        to={`/addAsset`}
+                        className="btn btn-outline btn-square text-green-500 hover:bg-green-500 hover:text-black"
+                      >
+                        <MdAddToDrive className="text-lg" />
+                      </Link>
+                    </div>
+
+                    <div className="relative overflow-visible tooltip tooltip-bottom"
+                      data-tip="Remove">
+                      <button
+                        onClick={() => handleDelete(asset._id)}
+                        className="btn btn-outline btn-square text-[#f87171] hover:bg-[#f87171] hover:text-black"
+                      >
+                        <IoTrashOutline className="text-lg" />
+                      </button>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -235,7 +246,6 @@ const AssetList = () => {
           Next
         </button>
       </div>
-
     </div>
   );
 };

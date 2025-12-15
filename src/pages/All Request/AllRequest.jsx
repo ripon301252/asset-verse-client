@@ -31,9 +31,8 @@ const AllRequests = () => {
   };
 
   useEffect(() => {
-  fetchRequests();
-}, [page, user.email]); // ✅ add dependencies to prevent stale closure
-
+    fetchRequests();
+  }, [page, user.email]); // ✅ add dependencies to prevent stale closure
 
   const handleApprove = async (reqId, req) => {
     if (!req.assetId || !req.email) {
@@ -41,14 +40,20 @@ const AllRequests = () => {
       return;
     }
 
-    console.log("Approving request:", reqId, req.assetId, req.email, user.email);
+    console.log(
+      "Approving request:",
+      reqId,
+      req.assetId,
+      req.email,
+      user.email
+    );
 
     try {
       const approveInfo = {
         hrEmail: user.email,
         employeeEmail: req.email,
         assetId: req.assetId,
-        quantityNeeded: Number(req.quantity)
+        quantityNeeded: Number(req.quantity),
       };
       const res = await axiosSecure.put(
         `/asset_requests/${reqId}/approve`,
@@ -63,17 +68,19 @@ const AllRequests = () => {
         //     r._id === reqId ? { ...r, status: "approved" } : r
         //   )
         // );
-        fetchRequests()
+        fetchRequests();
       } else {
         toast.error(res.data.message || "Failed to approve request");
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to approve request");
+      if (err.response && err.response.data.message) {
+        toast.error(err.response.data.message); // HR limit reached message
+      } else {
+        toast.error("Failed to approve request");
+      }
     }
   };
-
-
 
   const handleReject = async (reqId) => {
     try {
@@ -81,9 +88,7 @@ const AllRequests = () => {
       if (res.data.success) {
         toast.success("Request rejected!");
         setRequests((prev) =>
-          prev.map((r) =>
-            r._id === reqId ? { ...r, status: "rejected" } : r
-          )
+          prev.map((r) => (r._id === reqId ? { ...r, status: "rejected" } : r))
         );
       } else {
         toast.error(res.data.message || "Failed to reject request");
@@ -95,7 +100,9 @@ const AllRequests = () => {
   };
 
   const handleDelete = async (reqId) => {
-    const confirmDelete = confirm("Are you sure you want to delete this request?");
+    const confirmDelete = confirm(
+      "Are you sure you want to delete this request?"
+    );
     if (!confirmDelete) return;
 
     try {
@@ -168,26 +175,41 @@ const AllRequests = () => {
                   <div className="flex justify-start items-center gap-3 whitespace-nowrap">
                     {req.status === "pending" && (
                       <>
-                        <button
-                          onClick={() => handleApprove(req._id, req)}
-                          className="btn btn-outline btn-square text-blue-500 hover:bg-blue-500 hover:text-black"
+                        <div
+                          className="relative overflow-visible tooltip tooltip-bottom"
+                          data-tip="Approved"
                         >
-                          <MdApproval className="text-lg" />
-                        </button>
-                        <button
-                          onClick={() => handleReject(req._id)}
-                          className="btn btn-outline btn-square text-yellow-500 hover:bg-yellow-500 hover:text-black"
+                          <button
+                            onClick={() => handleApprove(req._id, req)}
+                            className="btn btn-outline btn-square text-blue-500 hover:bg-blue-500 hover:text-black"
+                          >
+                            <MdApproval className="text-lg" />
+                          </button>
+                        </div>
+                        <div
+                          className="relative overflow-visible tooltip tooltip-bottom"
+                          data-tip="Reject"
                         >
-                          <TbPlayerEject className="text-lg" />
-                        </button>
+                          <button
+                            onClick={() => handleReject(req._id)}
+                            className="btn btn-outline btn-square text-yellow-500 hover:bg-yellow-500 hover:text-black"
+                          >
+                            <TbPlayerEject className="text-lg" />
+                          </button>
+                        </div>
                       </>
                     )}
-                    <button
-                      onClick={() => handleDelete(req._id)}
-                      className="btn btn-outline btn-square text-[#f87171] hover:bg-[#f87171] hover:text-black"
+                    <div
+                      className="relative overflow-visible tooltip tooltip-bottom"
+                      data-tip="Remove"
                     >
-                      <IoTrashOutline className="text-lg" />
-                    </button>
+                      <button
+                        onClick={() => handleDelete(req._id)}
+                        className="btn btn-outline btn-square text-[#f87171] hover:bg-[#f87171] hover:text-black"
+                      >
+                        <IoTrashOutline className="text-lg" />
+                      </button>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -197,7 +219,7 @@ const AllRequests = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center mt-6 gap-4">
+      <div className="flex justify-center mt-6 gap-4 items-center">
         <button
           className="btn"
           disabled={page === 1}
@@ -205,6 +227,12 @@ const AllRequests = () => {
         >
           Previous
         </button>
+
+        {/* Current page display */}
+        <span className="text-gray-700 font-medium">
+          {page}/{totalPages || 1} {/* যদি totalPages 0 হয়, 1 দেখাবে */}
+        </span>
+
         <button
           className="btn"
           disabled={page === totalPages || totalPages === 0}

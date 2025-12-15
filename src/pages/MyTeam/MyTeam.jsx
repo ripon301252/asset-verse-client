@@ -1,4 +1,3 @@
-// src/pages/MyTeam/MyTeam.jsx
 import React, { useEffect, useState } from "react";
 import useAuth from "../../Hooks/useAuth";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
@@ -9,6 +8,11 @@ const MyTeam = () => {
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dbUser, setDbUser] = useState(null);
+
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 10;
 
   // Fetch logged-in user from DB
   useEffect(() => {
@@ -28,14 +32,11 @@ const MyTeam = () => {
     if (!dbUser) return setLoading(false);
 
     try {
-      const res = await axiosSecure.get("/users");
-
-      // Simple logic: all employees except current user
-      const members = res.data.filter(
-        (u) => u._id !== dbUser._id && u.role === "employee"
+      const res = await axiosSecure.get(
+        `/users?excludeId=${dbUser._id}&role=employee&page=${page}&limit=${limit}`
       );
-
-      setTeamMembers(members);
+      setTeamMembers(res.data.users || []);
+      setTotal(res.data.total || 0);
       setLoading(false);
     } catch (err) {
       console.error(err);
@@ -45,7 +46,7 @@ const MyTeam = () => {
 
   useEffect(() => {
     if (dbUser) fetchTeam();
-  }, [dbUser]);
+  }, [dbUser, page]);
 
   // Upcoming birthdays within 30 days
   const upcomingBirthdays = teamMembers
@@ -59,6 +60,8 @@ const MyTeam = () => {
     })
     .filter((member) => member.daysLeft >= 0 && member.daysLeft <= 30)
     .sort((a, b) => a.daysLeft - b.daysLeft);
+
+  const totalPages = Math.ceil(total / limit);
 
   if (loading) {
     return (
@@ -128,7 +131,7 @@ const MyTeam = () => {
             {teamMembers.map((member, i) => (
               <tr key={member._id} className="hover:bg-white/10">
                 <td className="sticky left-0 bg-white dark:bg-gray-900 z-10 px-4 py-2">
-                  {i + 1}
+                  {(page - 1) * limit + i + 1}
                 </td>
                 <td>
                   {member.photoURL ? (
@@ -154,9 +157,7 @@ const MyTeam = () => {
                 <td>
                   <span
                     className={`badge ${
-                      member.status === "active"
-                        ? "badge-success"
-                        : "badge-error"
+                      member.status === "active" ? "badge-success" : "badge-error"
                     }`}
                   >
                     {member.status || "active"}
@@ -176,6 +177,25 @@ const MyTeam = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-6 gap-2">
+        <button
+          className="btn btn-sm btn-outline"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          Previous
+        </button>
+        <span className="px-4 py-1 font-semibold">{page} / {totalPages}</span>
+        <button
+          className="btn btn-sm btn-outline"
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page === totalPages}
+        >
+          Next
+        </button>
       </div>
     </div>
   );

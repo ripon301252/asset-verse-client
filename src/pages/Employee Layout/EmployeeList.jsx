@@ -65,28 +65,29 @@ const EmployeeList = () => {
   // };
 
   const handleRemove = async (affiliationId) => {
-  const confirmDelete = confirm("Are you sure you want to remove this employee?");
-  if (!confirmDelete) return;
+    const confirmDelete = confirm(
+      "Are you sure you want to remove this employee?"
+    );
+    if (!confirmDelete) return;
 
-  try {
-    const res = await axios.delete(`/affiliations/${affiliationId}`, {
-      headers: { hremail: user.email } // HR email পাঠানো লাগবে
-    });
+    try {
+      const res = await axios.delete(`/affiliations/${affiliationId}`, {
+        headers: { hremail: user.email }, // HR email পাঠানো লাগবে
+      });
 
-    if (res.data.success) {
-      toast.success("Employee removed!");
-      setEmployees(prev =>
-        prev.filter(emp => emp.affiliationId !== affiliationId)
-      );
-    } else {
-      toast.error(res.data.message || "Failed to remove employee");
+      if (res.data.success) {
+        toast.success("Employee removed!");
+        setEmployees((prev) =>
+          prev.filter((emp) => emp.affiliationId !== affiliationId)
+        );
+      } else {
+        toast.error(res.data.message || "Failed to remove employee");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to remove employee");
     }
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to remove employee");
-  }
-};
-
+  };
 
   const totalPages = Math.ceil(totalEmployees / limit);
 
@@ -131,7 +132,9 @@ const EmployeeList = () => {
           <tbody>
             {employees.map((emp, i) => (
               <tr key={emp.affiliationId} className="hover:bg-white/10">
-                <td>{(page - 1) * limit + i + 1}</td>
+                <td className="sticky left-0 bg-white dark:bg-gray-900 z-10 px-4 py-2">
+                  {(page - 1) * limit + i + 1}
+                </td>
                 <td className="flex items-center gap-3">
                   {emp.photoURL ? (
                     <img
@@ -149,13 +152,18 @@ const EmployeeList = () => {
                 <td>{emp.email}</td>
                 <td>{emp.status}</td>
                 <td>{new Date(emp.joinedAt).toLocaleDateString()}</td>
-                <td className="flex gap-3">
-                  <button
-                    onClick={() => handleRemove(emp.affiliationId)}
-                    className="btn btn-outline btn-square text-red-400 hover:bg-red-400 hover:text-black"
+                <td>
+                  <div
+                    className="relative overflow-visible tooltip tooltip-bottom"
+                    data-tip="Remove"
                   >
-                    <IoTrashOutline className="text-lg" />
-                  </button>
+                    <button
+                      onClick={() => handleRemove(emp.affiliationId)}
+                      className="btn btn-outline btn-square text-red-400 hover:bg-red-400 hover:text-black"
+                    >
+                      <IoTrashOutline className="text-lg" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -168,7 +176,7 @@ const EmployeeList = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center mt-6 gap-4">
+      <div className="flex justify-center mt-6 gap-4 items-center">
         <button
           className="btn"
           disabled={page === 1}
@@ -176,9 +184,15 @@ const EmployeeList = () => {
         >
           Previous
         </button>
+
+        {/* Current page display */}
+        <span className="text-gray-700 font-medium">
+          {page}/{totalPages || 1} {/* যদি totalPages 0 হয়, 1 দেখাবে */}
+        </span>
+
         <button
           className="btn"
-          disabled={page === totalPages}
+          disabled={page === totalPages || totalPages === 0}
           onClick={() => setPage((p) => p + 1)}
         >
           Next

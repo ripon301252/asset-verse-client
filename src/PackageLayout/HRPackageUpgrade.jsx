@@ -1,24 +1,39 @@
 // components/HRPackageUpgrade.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import useAxios from "../Hooks/useAxios";
 import useAuth from "../Hooks/useAuth";
 
-
 const HRPackageUpgrade = () => {
-  const axios = useAxios()
-  const {user} = useAuth()
-  const handleUpgrade = async (packageType) => {
-    let amount = packageType === "Standard" ? 20 : 50;
+  const axios = useAxios();
+  const { user } = useAuth();
+  const [packages, setPackages] = useState([]);
 
+  // 🔹 Backend থেকে package গুলো আনা
+  useEffect(() => {
+    axios.get("/api/packages").then((res) => {
+      setPackages(res.data);
+    });
+  }, [axios]);
+
+  // 🔹 Upgrade handler
+  const handleUpgrade = async (pkg) => {
     try {
-      const res = await axios.post("/api/stripe/create-checkout-session", {
-        hrEmail: user.email,
-        packageType,
-        amount,
-      });
+      const res = await axios.post(
+        "/api/stripe/create-checkout-session",
+        {
+          hrEmail: user.email,
+          packageId: pkg._id,
+        }
+      );
+
+      // Free package হলে redirect লাগবে না
+      if (res.data.free) {
+        alert("Package upgraded successfully!");
+        return;
+      }
 
       if (res.data.url) {
-        window.location.href = res.data.url; // redirect to Stripe Checkout
+        window.location.href = res.data.url;
       }
     } catch (err) {
       console.error("Stripe Checkout error:", err);
@@ -26,32 +41,36 @@ const HRPackageUpgrade = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white text-center">
+    <div className="max-w-5xl mx-auto p-6">
+      <h2 className="text-3xl font-bold text-center mb-8">
         Upgrade Your Package
       </h2>
 
-      <div className="flex flex-col sm:flex-row sm:justify-center gap-4">
-        <button
-          className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-5 rounded-lg transition-colors duration-300 shadow-md hover:shadow-lg cursor-pointer"
-          onClick={() => handleUpgrade("Standard")}
-        >
-          Standard Package
-          <span className="ml-2 text-sm">($20)</span>
-        </button>
+      <div className="grid md:grid-cols-3 gap-6">
+        {packages.map((pkg) => (
+          <div
+            key={pkg._id}
+            className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg"
+          >
+            <h3 className="text-xl font-semibold mb-2">{pkg.name}</h3>
 
-        <button
-          className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-5 rounded-lg transition-colors duration-300 shadow-md hover:shadow-lg cursor-pointer"
-          onClick={() => handleUpgrade("Premium")}
-        >
-          Premium Package
-          <span className="ml-2 text-sm">($50)</span>
-        </button>
+            <p className="text-gray-600 dark:text-gray-300">
+              Employee Limit: {pkg.employeeLimit}
+            </p>
+
+            <p className="text-lg font-bold mt-2">
+              {pkg.price === 0 ? "Free" : `$${pkg.price}`}
+            </p>
+
+            <button
+              onClick={() => handleUpgrade(pkg)}
+              className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg cursor-pointer"
+            >
+              Upgrade
+            </button>
+          </div>
+        ))}
       </div>
-
-      <p className="text-center mt-6 text-gray-500 dark:text-gray-300 text-sm">
-        Choose a package to upgrade your HR account.
-      </p>
     </div>
   );
 };
