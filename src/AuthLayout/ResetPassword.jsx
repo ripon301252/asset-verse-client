@@ -30,10 +30,10 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className=" flex justify-center bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 items-center mx-6 rounded-2xl">
+    <div className=" flex justify-center  dark:bg-gray-800  dark:text-gray-200 items-center mx-9 rounded-2xl">
       <title>AssetVerse - Reset Password</title>
 
-      <div className="card w-full max-w-md shadow-2xl border border-gray-300 rounded-2xl p-8 text-center">
+      <div className="card w-full max-w-md shadow-2xl rounded-2xl p-8 text-center">
         <h2 className="text-2xl font-bold mb-4">
           Reset Your Password
         </h2>

@@ -1,13 +1,15 @@
 // components/HRPackageUpgrade.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useAxios from "../Hooks/useAxios";
 import useAuth from "../Hooks/useAuth";
+import toast from "react-hot-toast";
 
 const HRPackageUpgrade = () => {
   const axios = useAxios();
   const { user } = useAuth();
   const [packages, setPackages] = useState([]);
-
+  // const [myEmployees, setMyEmployees] = useState([]);
+  const calledRef = useRef(false);
   // 🔹 Backend থেকে package গুলো আনা
   useEffect(() => {
     axios.get("/api/packages").then((res) => {
@@ -15,28 +17,85 @@ const HRPackageUpgrade = () => {
     });
   }, [axios]);
 
+
+
+useEffect(() => {
+  if (calledRef.current) return;
+  calledRef.current = true;
+
+  const params = new URLSearchParams(window.location.search);
+  const session_id = params.get("session_id");
+  const packageId = params.get("packageId");
+  const hrEmail = params.get("hrEmail");
+
+  console.log({ session_id, packageId, hrEmail });
+
+  if (!session_id || !packageId || !hrEmail) return;
+
+  axios.get(`/api/stripe/success?session_id=${session_id}&packageId=${packageId}&hrEmail=${hrEmail}`)
+    .then(res => {
+      console.log("SUCCESS RESPONSE:", res.data);
+
+      if (res.data.success && res.data.packageName) {
+        toast.success(`Package upgraded to ${res.data.packageName}`);
+      } else {
+        toast.error("Payment verification failed");
+      }
+    })
+    .catch(() => toast.error("Upgrade failed"));
+}, [axios]);
+
+
+
+
+
+
+
   // 🔹 Upgrade handler
+  // const handleUpgrade = async (pkg) => {
+  //   try {
+  //     const res = await axios.post(
+  //       "/api/stripe/create-checkout-session",
+  //       {
+  //         hrEmail: user.email,
+  //         packageId: pkg._id,
+  //       }
+  //     );
+
+  //     // Free package হলে redirect লাগবে না
+  //     if (res.data.free) {
+  //       alert("Package upgraded successfully!");
+  //       return;
+  //     }
+
+  //     if (res.data.url) {
+  //       window.location.href = res.data.url;
+  //     }
+  //   } catch (err) {
+  //     console.error("Stripe Checkout error:", err);
+  //   }
+  // };
+
   const handleUpgrade = async (pkg) => {
     try {
-      const res = await axios.post(
-        "/api/stripe/create-checkout-session",
-        {
-          hrEmail: user.email,
-          packageId: pkg._id,
-        }
-      );
+      const res = await axios.post("/api/stripe/create-checkout-session", {
+        hrEmail: user.email,
+        packageId: pkg._id,
+      });
 
-      // Free package হলে redirect লাগবে না
+      // Free package
       if (res.data.free) {
-        alert("Package upgraded successfully!");
+        toast.success("Package upgraded successfully!");
         return;
       }
 
+      // Paid → redirect to Stripe
       if (res.data.url) {
         window.location.href = res.data.url;
       }
     } catch (err) {
-      console.error("Stripe Checkout error:", err);
+      console.error(err);
+      toast.error("Upgrade failed");
     }
   };
 
@@ -50,7 +109,7 @@ const HRPackageUpgrade = () => {
         {packages.map((pkg) => (
           <div
             key={pkg._id}
-            className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg"
+            className="p-6  dark:bg-gray-800 rounded-xl shadow-lg"
           >
             <h3 className="text-xl font-semibold mb-2">{pkg.name}</h3>
 

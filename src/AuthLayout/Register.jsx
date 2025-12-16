@@ -426,15 +426,17 @@ const Register = () => {
       const userInfo = {
         name: data.name,
         email: data.email,
-        role: data.role,
+        role: data.role, // backend verify করবে
+        hrCode: data.hrCode || "", // 🔐 secret code
         photoURL,
         companyName: data.role === "hr" ? data.companyName : null,
         companyLogo: data.role === "hr" ? companyLogoURL : null,
-        birthdate: data.birthdate, // ✅ Add birthdate here
+        birthdate: data.birthdate,
       };
 
       // 5️⃣ Save user to DB
-      await axiosSecure.post("/users", userInfo);
+       const res = await axiosSecure.post("/users", userInfo);
+       console.log("User registration response:", res.data);
 
       // 6️⃣ Update Firebase profile
       await updateUserProfile({
@@ -451,8 +453,10 @@ const Register = () => {
   };
 
   return (
-    <div className="mx-4 max-w-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-6 rounded-2xl 
-     max-h-[80vh] overflow-y-auto">
+    <div
+      className="mx-4 max-w-md  dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-6 rounded-2xl 
+     max-h-[80vh] overflow-y-auto"
+    >
       <h2 className="text-2xl font-bold text-center">Create Account</h2>
       <p className="text-center my-2">Join AssetVerse</p>
 
@@ -504,6 +508,15 @@ const Register = () => {
                 type="file"
                 {...register("companyLogo", { required: true })}
                 className="file-input w-full"
+              />
+
+              {/* 🔐 HR Secret Code */}
+              <label className="label">HR Secret Code</label>
+              <input
+                type="password"
+                {...register("hrCode", { required: true })}
+                className="input w-full"
+                placeholder="Enter HR Secret Code"
               />
             </>
           )}
