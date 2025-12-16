@@ -8,7 +8,6 @@ const HRPackageUpgrade = () => {
   const axios = useAxios();
   const { user } = useAuth();
   const [packages, setPackages] = useState([]);
-  // const [myEmployees, setMyEmployees] = useState([]);
   const calledRef = useRef(false);
   // 🔹 Backend থেকে package গুলো আনা
   useEffect(() => {
@@ -45,36 +44,6 @@ useEffect(() => {
     .catch(() => toast.error("Upgrade failed"));
 }, [axios]);
 
-
-
-
-
-
-
-  // 🔹 Upgrade handler
-  // const handleUpgrade = async (pkg) => {
-  //   try {
-  //     const res = await axios.post(
-  //       "/api/stripe/create-checkout-session",
-  //       {
-  //         hrEmail: user.email,
-  //         packageId: pkg._id,
-  //       }
-  //     );
-
-  //     // Free package হলে redirect লাগবে না
-  //     if (res.data.free) {
-  //       alert("Package upgraded successfully!");
-  //       return;
-  //     }
-
-  //     if (res.data.url) {
-  //       window.location.href = res.data.url;
-  //     }
-  //   } catch (err) {
-  //     console.error("Stripe Checkout error:", err);
-  //   }
-  // };
 
   const handleUpgrade = async (pkg) => {
     try {
