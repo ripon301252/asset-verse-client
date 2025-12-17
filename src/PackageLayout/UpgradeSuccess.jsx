@@ -20,10 +20,15 @@ const UpgradeSuccess = () => {
         const res = await axiosSecure.get(
           `/api/stripe/success?session_id=${session_id}&hrEmail=${hrEmail}&packageId=${packageId}`
         );
-
+        console.log(res.data);
         if (res.data.success) {
           setStatus("success");
-          setMessage(`Payment Successful! Package upgraded to ${res.data.packageId}`);
+          setMessage(
+            <>
+              Payment Successful! Package upgraded to{" "}
+              <span className="font-bold">{res.data.packageName}</span>
+            </>
+          );
         } else {
           setStatus("error");
           setMessage("Payment verification failed.");
@@ -51,14 +56,20 @@ const UpgradeSuccess = () => {
         className={`max-w-md w-full border rounded-xl shadow-lg p-8 text-center transition-all duration-300 ${statusStyles[status]}`}
       >
         <h2 className="text-2xl font-bold mb-4">
-          {status === "processing" ? "Processing..." : status === "success" ? "Success!" : "Failed"}
+          {status === "processing"
+            ? "Processing..."
+            : status === "success"
+            ? "Success!"
+            : "Failed"}
         </h2>
         <p className="text-gray-700 dark:text-gray-300 mb-6">{message}</p>
         {status !== "processing" && (
           <button
-            onClick={() => window.location.href = "/packageUpgrade"} // redirect to dashboard
+            onClick={() => (window.location.href = "/packageUpgrade")} // redirect to dashboard
             className={`px-6 py-2 rounded-lg font-semibold text-white ${
-              status === "success" ? "bg-green-600 hover:bg-green-500" : "bg-red-600 hover:bg-red-500"
+              status === "success"
+                ? "bg-green-600 hover:bg-green-500"
+                : "bg-red-600 hover:bg-red-500"
             } transition-colors`}
           >
             Go to Dashboard
