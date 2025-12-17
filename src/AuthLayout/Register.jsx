@@ -60,7 +60,7 @@ const Register = () => {
       };
 
       // 5️⃣ Save user to DB
-       const res = await axiosSecure.post("/users", userInfo);
+       const res = await axiosSecure.post("/users/post", userInfo);
        console.log("User registration response:", res.data);
 
       // 6️⃣ Update Firebase profile

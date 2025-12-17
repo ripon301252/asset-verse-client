@@ -8,7 +8,7 @@ const axiosSecure = axios.create({
 });
 
 const useAxiosSecure = () => {
-  const { user, logOut} = useAuth();
+  const { user, logOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,35 +18,34 @@ const useAxiosSecure = () => {
     });
 
     // interceptor response
-    const resInterceptor = axiosSecure.interceptors.response.use((response) =>{
+    const resInterceptor = axiosSecure.interceptors.response.use(
+      (response) => {
         return response;
-    }, (err)=>{
-        console.log(err)
+      },
+      (err) => {
+        console.log(err);
 
         const statusCode = err.status;
-        if(statusCode === 401 || statusCode === 403){
-            logOut().then(()=>{
-                navigate('/login')
-            })
+        if (statusCode === 401 || statusCode === 403) {
+          logOut().then(() => {
+            navigate("/login");
+          });
         }
 
-        return Promise.reject(err)
-    })
+        return Promise.reject(err);
+      }
+    );
 
-    return()=>{
-        axiosSecure.interceptors.request.eject(reqInterceptor);
-        axiosSecure.interceptors.response.eject(resInterceptor);
-    }
+    return () => {
+      axiosSecure.interceptors.request.eject(reqInterceptor);
+      axiosSecure.interceptors.response.eject(resInterceptor);
+    };
   }, [user, logOut, navigate]);
 
   return axiosSecure;
 };
 
 export default useAxiosSecure;
-
-
-
-
 
 // import { useEffect } from "react";
 // import axios from "axios";

@@ -26,7 +26,7 @@ const UpgradeSuccess = () => {
           setMessage(
             <>
               Payment Successful! Package upgraded to{" "}
-              <span className="font-bold">{res.data.packageName}</span>
+              <span className="font-bold text-blue-600">{res.data.packageName}</span>
             </>
           );
         } else {
@@ -66,7 +66,7 @@ const UpgradeSuccess = () => {
         {status !== "processing" && (
           <button
             onClick={() => (window.location.href = "/packageUpgrade")} // redirect to dashboard
-            className={`px-6 py-2 rounded-lg font-semibold text-white ${
+            className={`px-6 py-2 rounded-lg font-semibold text-white cursor-pointer ${
               status === "success"
                 ? "bg-green-600 hover:bg-green-500"
                 : "bg-red-600 hover:bg-red-500"
