@@ -49,14 +49,14 @@ const ChartHr = () => {
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-5 lg:px-20">
-      <h2 className="text-3xl font-bold mb-8 text-gray-800 dark:text-white">
+      <h2 className="text-3xl font-bold mb-8  dark:text-white">
         HR Dashboard
       </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Pie Chart */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
+        <div className=" dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-600">
+          <h3 className="text-xl font-semibold mb-4 dark:text-white">
             Assets: Returnable vs Non-Returnable
           </h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -73,8 +73,8 @@ const ChartHr = () => {
         </div>
 
         {/* Bar Chart */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
+        <div className=" dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-600">
+          <h3 className="text-xl font-semibold mb-4  dark:text-white">
             Top 5 Requested Assets
           </h3>
           <ResponsiveContainer width="100%" height={300}>

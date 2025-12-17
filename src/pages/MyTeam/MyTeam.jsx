@@ -44,6 +44,7 @@ const MyTeam = () => {
     }
   };
 
+ 
   useEffect(() => {
     if (dbUser) fetchTeam();
   }, [dbUser, page]);

@@ -1,35 +1,31 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "../../Hooks/useAuth";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { IoTrashOutline } from "react-icons/io5";
 import { VscGitPullRequestGoToChanges } from "react-icons/vsc";
-import { Link } from "react-router";
-import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { PiKeyReturnBold } from "react-icons/pi";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import toast from "react-hot-toast";
+import { Link } from "react-router";
 
 const MyAssets = () => {
   const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
   const [myAssets, setMyAssets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const limit = 10;
+  const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState("");
 
-  const axiosSecure = useAxiosSecure();
-
+  // Fetch assets
   useEffect(() => {
     if (!user) return;
 
     const fetchMyAssets = async () => {
       setLoading(true);
       try {
-        const res = await axiosSecure.get(
-          `/asset_requests?email=${user.email}&page=${page}&limit=${limit}`
-        );
+        const res = await axiosSecure.get(`/asset_requests?email=${user.email}`);
         const requests = res.data.requests || [];
-        setTotal(res.data.total || 0);
 
         const assetsWithDetails = await Promise.all(
           requests.map(async (req) => {
@@ -45,6 +41,7 @@ const MyAssets = () => {
                 image: assetDetails.image || "",
                 type: assetDetails.type || "",
                 company: assetDetails.company || "",
+                approvalDate: req.approvalDate || "-", // Backend থেকে প্রাপ্ত হলে দেখাবে
               };
             } catch (err) {
               console.error("Asset details fetch failed:", err);
@@ -62,8 +59,9 @@ const MyAssets = () => {
     };
 
     fetchMyAssets();
-  }, [user, axiosSecure, page]);
+  }, [user, axiosSecure]);
 
+  // Delete Asset
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this asset request?"
@@ -84,22 +82,18 @@ const MyAssets = () => {
     }
   };
 
+  // Return Asset
   const handleReturn = async (id) => {
-    const confirmReturn = window.confirm(
-      "Are you sure you want to return this asset?"
-    );
+    const confirmReturn = window.confirm("Are you sure you want to return this asset?");
     if (!confirmReturn) return;
 
     try {
       const res = await axiosSecure.put(`/asset_requests/${id}/return`);
-      const data = res.data;
-      if (data.modifiedCount > 0 || data.success) {
+      if (res.data.modifiedCount > 0 || res.data.success) {
         toast.success("Asset returned successfully!");
         setMyAssets((prev) =>
           prev.map((asset) =>
-            asset._id.toString() === id.toString()
-              ? { ...asset, status: "returned" }
-              : asset
+            asset._id.toString() === id.toString() ? { ...asset, status: "returned" } : asset
           )
         );
       } else {
@@ -111,41 +105,39 @@ const MyAssets = () => {
     }
   };
 
+  // Export PDF
   const handleExportPDF = () => {
     const doc = new jsPDF();
     doc.text("AssetVerse - My Assets Report", 14, 10);
+
     const tableColumn = [
       "Name",
       "Type",
       "Company",
-      "Quantity",
       "Status",
-      "Reason",
-      "Date",
+      "Request Date",
+      "Approval Date",
     ];
 
-    const tableRows = [];
-    myAssets.forEach((asset) => {
-      tableRows.push([
-        asset.assetName,
-        asset.type || "-",
-        asset.company || "-",
-        asset.quantity,
-        asset.status,
-        asset.reason || "-",
-        new Date(asset.createdAt).toLocaleDateString(),
-      ]);
-    });
+    const tableRows = filteredAssets.map((asset) => [
+      asset.assetName,
+      asset.type || "-",
+      asset.company || "-",
+      asset.status,
+      new Date(asset.createdAt).toLocaleDateString(),
+      asset.approvalDate,
+    ]);
 
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 20,
-    });
+    autoTable(doc, { head: [tableColumn], body: tableRows, startY: 20 });
     doc.save("my_assets.pdf");
   };
 
-  const totalPages = Math.ceil(total / limit);
+  // Search & Filter
+  const filteredAssets = myAssets.filter(
+    (asset) =>
+      asset.assetName.toLowerCase().includes(search.toLowerCase()) &&
+      (filterType === "" || asset.type.toLowerCase() === filterType.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -157,78 +149,86 @@ const MyAssets = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
         <h2 className="text-2xl font-bold">My Assets</h2>
-        <button
-          onClick={handleExportPDF}
-          className="btn btn-sm btn-outline btn-success"
-        >
-          Export PDF
-        </button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="text"
+            placeholder="Search by Asset Name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input input-bordered w-full max-w-xs"
+          />
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="select select-bordered max-w-xs"
+          >
+            <option value="">All Types</option>
+            <option value="returnable">Returnable</option>
+            <option value="non-returnable">Non-returnable</option>
+          </select>
+          <button onClick={handleExportPDF} className="btn btn-outline btn-success">
+            Export PDF
+          </button>
+        </div>
       </div>
 
-      {myAssets.length === 0 ? (
-        <p className="text-gray-600">
-          You have not requested or been assigned any assets yet.
-        </p>
+      {filteredAssets.length === 0 ? (
+        <p className="text-gray-600">No assets found for your search/filter.</p>
       ) : (
-        <>
-          <div className="overflow-x-auto">
-            <table className="table w-full">
-              <thead>
-                <tr className="bg-base-200">
-                  <th>#</th>
-                  <th>Image</th>
-                  <th>Name</th>
-                  <th>Type</th>
-                  <th>Company</th>
-                  <th>Quantity</th>
-                  <th>Status</th>
-                  <th>Reason</th>
-                  <th>Date</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {myAssets.map((asset, index) => (
-                  <tr key={asset._id} className="hover:bg-white/10">
-                    <th className="sticky left-0 bg-white dark:bg-gray-900 z-10 px-4 py-2">
-                      {(page - 1) * limit + index + 1}
-                    </th>
-                    <td>
-                      {asset.image ? (
-                        <img
-                          src={asset.image}
-                          alt={asset.assetName}
-                          className="w-12 h-12 object-cover rounded"
-                        />
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                    <td className="capitalize">{asset.assetName}</td>
-                    <td>{asset.type || "-"}</td>
-                    <td>{asset.company || "-"}</td>
-                    <td>{asset.quantity}</td>
-                    <td>
-                      <span
-                        className={`font-bold ${
-                          asset.status === "approved"
-                            ? "text-green-600"
-                            : asset.status === "rejected"
-                            ? "text-red-600"
-                            : asset.status === "returned"
-                            ? "text-blue-600"
-                            : "text-yellow-600"
-                        }`}
-                      >
-                        {asset.status}
-                      </span>
-                    </td>
-                    <td>{asset.reason || "-"}</td>
-                    <td>{new Date(asset.createdAt).toLocaleDateString()}</td>
-                    <td>
-                      <div className="flex justify-start items-center gap-3 whitespace-nowrap">
+        <div className="overflow-x-auto">
+          <table className="table w-full">
+            <thead>
+              <tr className="bg-base-200">
+                <th>#</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Company</th>
+                <th>Status</th>
+                <th>Request Date</th>
+                <th>Approval Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAssets.map((asset, index) => (
+                <tr key={asset._id} className="hover:bg-white/10">
+                  <th>{index + 1}</th>
+                  <td>
+                    {asset.image ? (
+                      <img
+                        src={asset.image}
+                        alt={asset.assetName}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                  <td>{asset.assetName}</td>
+                  <td>{asset.type || "-"}</td>
+                  <td>{asset.company || "-"}</td>
+                  <td>
+                    <span
+                      className={`font-bold ${
+                        asset.status === "approved"
+                          ? "text-green-600"
+                          : asset.status === "rejected"
+                          ? "text-red-600"
+                          : asset.status === "returned"
+                          ? "text-blue-600"
+                          : "text-yellow-600"
+                      }`}
+                    >
+                      {asset.status}
+                    </span>
+                  </td>
+                  <td>{new Date(asset.createdAt).toLocaleDateString()}</td>
+                  <td>{asset.approvalDate || "-"}</td>
+                  <td>
+                   <div className="flex justify-start items-center gap-3 whitespace-nowrap">
                         {asset.type?.toLowerCase() === "returnable" &&
                           asset.status?.toLowerCase() === "approved" && (
                             <div
@@ -265,35 +265,13 @@ const MyAssets = () => {
                             <IoTrashOutline className="text-lg" />
                           </button>
                         </div>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination Buttons */}
-          <div className="flex justify-center mt-6 gap-2">
-            <button
-              className="btn btn-sm btn-outline"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              Previous
-            </button>
-            <span className="px-4 py-1 font-semibold">
-              {page} / {totalPages}
-            </span>
-            <button
-              className="btn btn-sm btn-outline"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-            >
-              Next
-            </button>
-          </div>
-        </>
+                        </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

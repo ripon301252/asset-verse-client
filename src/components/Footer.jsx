@@ -1,96 +1,57 @@
 import React, { useState } from "react";
 import Img from "../assets/logo.png";
 import { toast } from "react-hot-toast";
+import { FaFacebookF, FaLinkedinIn, FaYoutube, FaInstagram } from "react-icons/fa";
 
 const Footer = () => {
   const [email, setEmail] = useState("");
 
   const handleSubscribe = () => {
     if (!email) return toast.error("Please enter your email");
-    // Placeholder for backend integration
+    // Backend integration placeholder
     toast.success("Subscribed successfully!");
     setEmail("");
   };
 
   return (
-    <footer className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 py-10">
-      <div className="max-w-7xl mx-auto px-5 md:flex md:justify-between md:items-start gap-10">
+    <footer className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 pt-16 pb-8">
+      <div className="max-w-7xl mx-auto px-5 grid md:grid-cols-3 gap-10">
+
         {/* Logo & Description */}
-        <div className="mb-8 md:mb-0">
-          <div className="flex items-center mb-2 hover:scale-105 transition-transform duration-300">
-            <img src={Img} alt="PawMart Logo" className="w-12 h-12 md:-ml-2 -ml-4" />
-            <h1 className="text-2xl font-bold">
+        <div>
+          <div className="flex items-center mb-4 hover:scale-105 transition-transform duration-300">
+            <img src={Img} alt="AssetVerse Logo" className="w-12 h-12 md:w-14 md:h-14" />
+            <h1 className="text-2xl md:text-3xl font-bold ml-2">
               Asset<span className="text-orange-500">Verse</span>
             </h1>
           </div>
-          <p className="max-w-xs">
-            “AssetVerse – Your assets, simplified.” 
-            “AssetVerse – Connect, track, and grow.” 
+          <p className="mb-4 max-w-xs">
+            AssetVerse – Connect, track, and grow. Simplifying digital asset management for businesses.
           </p>
-
-          {/* Social Icons */}
-          <div className="flex items-center mt-3 gap-3 text-2xl">
-            <a
-              href="https://www.facebook.com/mahfuzur.rahman.98284"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-blue-600 transition-colors hover:scale-105 duration-300"
-            >
-              <i className="fa-brands fa-facebook"></i>
-            </a>
-            <a
-              href="https://www.linkedin.com/in/mahfuzur-rahman-280471392/"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-blue-500 transition-colors hover:scale-105 duration-300"
-            >
-              <i className="fa-brands fa-linkedin"></i>
-            </a>
-            <a
-              href="https://www.youtube.com/"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-red-600 transition-colors hover:scale-105 duration-300"
-            >
-              <i className="fa-brands fa-youtube"></i>
-            </a>
-            <a
-              href="https://www.instagram.com/"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-pink-600 transition-colors hover:scale-105 duration-300"
-            >
-              <i className="fa-brands fa-square-instagram"></i>
-            </a>
+          <div className="flex items-center gap-4 text-2xl">
+            <a href="#" className="hover:text-blue-600 transition-colors"><FaFacebookF /></a>
+            <a href="#" className="hover:text-blue-500 transition-colors"><FaLinkedinIn /></a>
+            <a href="#" className="hover:text-red-600 transition-colors"><FaYoutube /></a>
+            <a href="#" className="hover:text-pink-600 transition-colors"><FaInstagram /></a>
           </div>
         </div>
 
-        {/* Useful Links */}
-        <div className="mb-8 md:mb-0">
-          <h3 className="text-xl font-semibold mb-2">Useful Links</h3>
-          <ul className="space-y-1">
-            <li>
-              <a href="/" className="hover:underline">
-                Home
-              </a>
-            </li>
-            <li>
-              <a className="hover:underline">
-                Contact
-              </a>
-            </li>
-            <li>
-              <a className="hover:underline">
-                Terms & Conditions
-              </a>
-            </li>
+        {/* Quick Navigation Links */}
+        <div>
+          <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
+          <ul className="space-y-2">
+            <li><a href="/" className="hover:underline">Home</a></li>
+            <li><a href="/joinEmployee" className="hover:underline">Join as Employee</a></li>
+            <li><a href="/joinHr" className="hover:underline">Join as HR</a></li>
+            <li><a href="#contact" className="hover:underline">Contact</a></li>
+            <li><a href="#terms" className="hover:underline">Terms & Privacy</a></li>
           </ul>
         </div>
 
-        {/* Subscribe */}
+        {/* Subscribe / Contact */}
         <div>
-          <h3 className="text-xl font-semibold mb-2">Subscribe</h3>
-          <div className="flex flex-col sm:flex-row gap-2">
+          <h3 className="text-xl font-semibold mb-4">Subscribe</h3>
+          <div className="flex flex-col sm:flex-row gap-2 mb-4">
             <input
               type="email"
               placeholder="Enter your email"
@@ -100,12 +61,18 @@ const Footer = () => {
             />
             <button
               onClick={handleSubscribe}
-              className=" bg-[#5b46b1] hover:bg-[#654dc7] text-white px-4 py-2 rounded-md hover:from-pink-500 hover:to-purple-500 transition-all duration-300 cursor-pointer"
+              className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white px-4 py-2 rounded-md hover:scale-105 transition-all duration-300"
             >
               Subscribe
             </button>
           </div>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">
+            Contact: <br />
+            Email: hr@assetverse.com <br />
+            Phone: +880 1234 567890
+          </p>
         </div>
+
       </div>
 
       {/* Copyright */}

@@ -19,12 +19,21 @@ const RequestAsset = () => {
   const navigate = useNavigate();
 
   // Load assets for dropdown
- useEffect(() => {
+//  useEffect(() => {
+//   axiosSecure
+//     .get("/assets")
+//     .then((res) => {
+//       // ensure assets is always an array
+//       setAssets(res.data.assets || []);
+//     })
+//     .catch((err) => console.error(err));
+// }, [axiosSecure]);
+
+useEffect(() => {
   axiosSecure
     .get("/assets")
     .then((res) => {
-      // ensure assets is always an array
-      setAssets(res.data.assets || []);
+      setAssets((res.data.assets || []).filter(a => a.quantity > 0));
     })
     .catch((err) => console.error(err));
 }, [axiosSecure]);
