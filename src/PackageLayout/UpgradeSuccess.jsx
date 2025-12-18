@@ -1,4 +1,3 @@
-// components/UpgradeSuccess.jsx
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import useAxiosSecure from "../Hooks/useAxiosSecure";
@@ -6,7 +5,7 @@ import useAxiosSecure from "../Hooks/useAxiosSecure";
 const UpgradeSuccess = () => {
   const location = useLocation();
   const axiosSecure = useAxiosSecure();
-  const [status, setStatus] = useState("processing"); // processing | success | error
+  const [status, setStatus] = useState("processing");
   const [message, setMessage] = useState("Processing payment...");
 
   useEffect(() => {
@@ -20,7 +19,6 @@ const UpgradeSuccess = () => {
         const res = await axiosSecure.get(
           `/api/stripe/success?session_id=${session_id}&hrEmail=${hrEmail}&packageId=${packageId}`
         );
-        console.log(res.data);
         if (res.data.success) {
           setStatus("success");
           setMessage(
@@ -34,7 +32,6 @@ const UpgradeSuccess = () => {
           setMessage("Payment verification failed.");
         }
       } catch (err) {
-        console.log(err);
         setStatus("error");
         setMessage("Error verifying payment.");
       }
@@ -43,7 +40,6 @@ const UpgradeSuccess = () => {
     verifyPayment();
   }, [location, axiosSecure]);
 
-  // Dynamic styles
   const statusStyles = {
     processing: "bg-yellow-100 text-yellow-800 border-yellow-300",
     success: "bg-green-100 text-green-800 border-green-300",
@@ -65,7 +61,7 @@ const UpgradeSuccess = () => {
         <p className="text-gray-700 dark:text-gray-300 mb-6">{message}</p>
         {status !== "processing" && (
           <button
-            onClick={() => (window.location.href = "/packageUpgrade")} // redirect to dashboard
+            onClick={() => window.location.href = "/packageUpgrade"}
             className={`px-6 py-2 rounded-lg font-semibold text-white cursor-pointer ${
               status === "success"
                 ? "bg-green-600 hover:bg-green-500"
