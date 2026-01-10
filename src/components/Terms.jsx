@@ -2,8 +2,8 @@ import React from "react";
 
 const Terms = () => {
   return (
-    <section className="min-h-screen bg-gray-50 dark:bg-gray-900 py-16 px-4">
-      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
+    <section className="min-h-screen bg-gray-50 dark:bg-gray-800 py-16 px-4">
+      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg">
         <h1 className="text-3xl font-bold mb-6 text-center">
           Terms & Privacy Policy
         </h1>
