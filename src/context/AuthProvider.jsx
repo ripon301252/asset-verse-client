@@ -68,16 +68,12 @@ const AuthProvider = ({ children }) => {
 
       // Save companyName in localStorage if HR
       if (currentUser?.email) {
-        fetch(
-          `https://asset-verse-server-eosin.vercel.app/users/${currentUser.email}/role`
-        )
+        fetch(`http://localhost:3000/users/${currentUser.email}/role`)
           .then((res) => res.json())
           .then((data) => {
             if (data.role === "hr") {
               // Backend থেকে companyName নিতে হবে
-              fetch(
-                `https://asset-verse-server-eosin.vercel.app/users/${currentUser.email}`
-              )
+              fetch(`http://localhost:3000/users/${currentUser.email}`)
                 .then((res) => res.json())
                 .then((userData) => {
                   localStorage.setItem(

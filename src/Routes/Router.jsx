@@ -28,12 +28,14 @@ import UpgradeSuccess from "../PackageLayout/UpgradeSuccess";
 import UpgradeCancel from "../PackageLayout/UpgradeCancel";
 import Error from "../pages/Error404/Error";
 import ChartHr from "../PackageLayout/ChartHr";
+import Contact from "../components/Contact";
+import Terms from "../components/Terms";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
-    errorElement: <Error />,
+    // errorElement: <Error />,
     children: [
       {
         path: "/",
@@ -154,6 +156,14 @@ export const router = createBrowserRouter([
             </HR>
           </PrivateRouts>
         ),
+      },
+      {
+        path: "/contact",
+        element: <Contact />
+      },
+      {
+        path: "/terms",
+        element: <Terms />
       },
     ],
   },

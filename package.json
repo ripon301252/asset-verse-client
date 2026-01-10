@@ -12,6 +12,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.17",
     "axios": "^1.13.2",
+    "emailjs-com": "^3.2.0",
     "firebase": "^12.6.0",
     "framer-motion": "^12.23.26",
     "jspdf": "^3.0.4",
