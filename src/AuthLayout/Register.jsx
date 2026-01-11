@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import useAuth from "../Hooks/useAuth";
@@ -47,21 +46,22 @@ const Register = () => {
         companyLogoURL = companyRes.data.data.url;
       }
 
-      
       const userInfo = {
         name: data.name,
         email: data.email,
-        role: data.role, 
-        hrCode: data.hrCode || "", 
+        role: data.role,
+        hrCode: data.hrCode || "",
         photoURL,
         companyName: data.role === "hr" ? data.companyName : null,
         companyLogo: data.role === "hr" ? companyLogoURL : null,
         birthdate: data.birthdate,
+
+        joiningDate: new Date(), // ✅ ADD THIS
       };
 
       // 5️⃣ Save user to DB
-       const res = await axiosSecure.post("/users", userInfo);
-       console.log("User registration response:", res.data);
+      const res = await axiosSecure.post("/users", userInfo);
+      console.log("User registration response:", res.data);
 
       // 6️⃣ Update Firebase profile
       await updateUserProfile({

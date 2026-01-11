@@ -44,7 +44,6 @@ const MyTeam = () => {
     }
   };
 
- 
   useEffect(() => {
     if (dbUser) fetchTeam();
   }, [dbUser, page]);
@@ -151,14 +150,16 @@ const MyTeam = () => {
                 <td>{member.email}</td>
                 <td>{member.role}</td>
                 <td>
-                  {member.joiningDate
-                    ? new Date(member.joiningDate).toLocaleDateString()
+                  {member.createdAt
+                    ? new Date(member.createdAt).toLocaleDateString()
                     : "N/A"}
                 </td>
                 <td>
                   <span
                     className={`badge ${
-                      member.status === "active" ? "badge-success" : "badge-error"
+                      member.status === "active"
+                        ? "badge-success"
+                        : "badge-error"
                     }`}
                   >
                     {member.status || "active"}
@@ -189,7 +190,9 @@ const MyTeam = () => {
         >
           Previous
         </button>
-        <span className="px-4 py-1 font-semibold">{page} / {totalPages}</span>
+        <span className="px-4 py-1 font-semibold">
+          {page} / {totalPages}
+        </span>
         <button
           className="btn btn-sm btn-outline"
           onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

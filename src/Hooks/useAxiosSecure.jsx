@@ -4,7 +4,7 @@ import useAuth from "./useAuth";
 import { useNavigate } from "react-router";
 
 const axiosSecure = axios.create({
-  baseURL: "http://localhost:3000/",
+  baseURL: "https://asset-verse-server-alpha.vercel.app/",
 });
 
 const useAxiosSecure = () => {
@@ -54,7 +54,7 @@ export default useAxiosSecure;
 
 // axios instance MUST be outside hook (important!)
 // const axiosSecure = axios.create({
-//   baseURL: "http://localhost:3000/",
+//   baseURL: "https://asset-verse-server-alpha.vercel.app/",
 // });
 
 // const useAxiosSecure = () => {

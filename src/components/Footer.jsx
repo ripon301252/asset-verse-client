@@ -56,12 +56,12 @@ const Footer = () => {
             {[
               {
                 icon: <FaFacebookF />,
-                link: "https://facebook.com",
+                link: "https://www.facebook.com/profile.php?id=100089627922381",
                 label: "Facebook",
               },
               {
                 icon: <FaLinkedinIn />,
-                link: "https://linkedin.com",
+                link: "https://www.linkedin.com/in/mahfuzur-rahman-280471392/",
                 label: "LinkedIn",
               },
               {
