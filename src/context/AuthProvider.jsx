@@ -69,14 +69,14 @@ const AuthProvider = ({ children }) => {
       // Save companyName in localStorage if HR
       if (currentUser?.email) {
         fetch(
-          `https://asset-verse-server-kappa.vercel.app/users/${currentUser.email}/role`
+          `https://asset-verse-server-kappa.vercel.appusers/${currentUser.email}/role`
         )
           .then((res) => res.json())
           .then((data) => {
             if (data.role === "hr") {
               // Backend থেকে companyName নিতে হবে
               fetch(
-                `https://asset-verse-server-kappa.vercel.app/users/${currentUser.email}`
+                `https://asset-verse-server-kappa.vercel.appusers/${currentUser.email}`
               )
                 .then((res) => res.json())
                 .then((userData) => {
