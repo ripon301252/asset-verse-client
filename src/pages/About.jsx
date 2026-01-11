@@ -25,7 +25,7 @@ const features = [
 ];
 
 const About = () => (
-  <section className="bg-gray-700 text-white py-24 px-6 md:px-12">
+  <section id="next-section" className="bg-gray-700 text-white py-24 px-6 md:px-12">
     <div className="max-w-6xl mx-auto text-center mb-16">
       <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4">
         Why Choose AssetVerse
