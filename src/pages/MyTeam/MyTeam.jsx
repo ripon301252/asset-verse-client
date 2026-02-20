@@ -25,7 +25,7 @@ const MyTeam = () => {
           setLoading(false);
         });
     }
-  }, [user]);
+  }, [user, axiosSecure]);
 
   // Fetch team members
   const fetchTeam = async () => {

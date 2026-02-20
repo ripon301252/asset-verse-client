@@ -15,12 +15,13 @@ const Navbar = () => {
   const [avatarDropdown, setAvatarDropdown] = useState(false);
   const [showName, setShowName] = useState(false);
 
-  const linkClass = ({ isActive }) =>
-    `px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
-      isActive
-        ? "text-[#5633e4] border-b-2 border-[#8755ea]"
-        : "text-gray-700 dark:text-gray-200 hover:text-[#8755ea] hover:scale-105"
-    }`;
+  const navLinkClass = ({ isActive }) =>
+    `px-4 py-2 rounded-md text-sm font-medium transition-all duration-300
+   ${
+     isActive
+       ? "text-[#5633e4] border-b-2 border-[#8755ea]"
+       : "text-gray-700 dark:text-gray-200 hover:text-[#8755ea] hover:scale-105"
+   }`;
 
   const handleSignOut = () => {
     logOut()
@@ -32,13 +33,13 @@ const Navbar = () => {
   // Public Links
   const publicLinks = (
     <>
-      <NavLink className={linkClass} to="/">
+      <NavLink to="/" className={navLinkClass}>
         Home
       </NavLink>
-      <NavLink className={linkClass} to="/joinEmployee">
+      <NavLink to="/joinEmployee" className={navLinkClass}>
         Join as Employee
       </NavLink>
-      <NavLink className={linkClass} to="/joinHr">
+      <NavLink to="/joinHr" className={navLinkClass}>
         Join as HR
       </NavLink>
     </>
@@ -47,44 +48,16 @@ const Navbar = () => {
   // Employee Links
   const employeeLinks = (
     <>
-      <NavLink
-        to="/myAssets"
-        className={(navData) =>
-          `px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 ${linkClass(
-            navData
-          )}`
-        }
-      >
+      <NavLink to="/myAssets" className={navLinkClass}>
         My Assets
       </NavLink>
-      <NavLink
-        to="/myTeam"
-        className={(navData) =>
-          `px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 ${linkClass(
-            navData
-          )}`
-        }
-      >
+      <NavLink to="/myTeam" className={navLinkClass}>
         My Team
       </NavLink>
-      <NavLink
-        to="/requestAsset"
-        className={(navData) =>
-          `px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 ${linkClass(
-            navData
-          )}`
-        }
-      >
+      <NavLink to="/requestAsset" className={navLinkClass}>
         Request Asset
       </NavLink>
-      <NavLink
-        to="/profile"
-        className={(navData) =>
-          `px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 ${linkClass(
-            navData
-          )}`
-        }
-      >
+      <NavLink to="/profile" className={navLinkClass}>
         Profile
       </NavLink>
     </>
@@ -93,60 +66,25 @@ const Navbar = () => {
   // HR Links
   const hrLinks = (
     <>
-      <NavLink
-        to="/assetList"
-        className={(navData) =>
-          `px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 ${linkClass(
-            navData
-          )}`
-        }
-      >
+      <NavLink to="/assetList" className={navLinkClass}>
         Asset List
       </NavLink>
-      <NavLink
-        to="/addAsset"
-        className={(navData) =>
-          `px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 ${linkClass(
-            navData
-          )}`
-        }
-      >
+      <NavLink to="/addAsset" className={navLinkClass}>
         Add Asset
       </NavLink>
-      <NavLink
-        to="/allRequests"
-        className={(navData) =>
-          `px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 ${linkClass(
-            navData
-          )}`
-        }
-      >
+      <NavLink to="/allRequests" className={navLinkClass}>
         All Requests
       </NavLink>
-      <NavLink
-        to="/profile"
-        className={(navData) =>
-          `px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 ${linkClass(
-            navData
-          )}`
-        }
-      >
+      <NavLink to="/profile" className={navLinkClass}>
         Profile
       </NavLink>
-      <NavLink
-        to="/employeeList"
-        className={(navData) =>
-          `px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 ${linkClass(
-            navData
-          )}`
-        }
-      >
+      <NavLink to="/employeeList" className={navLinkClass}>
         Employee List
       </NavLink>
     </>
   );
 
-  console.log(role)
+  console.log(role);
 
   return (
     <nav className="bg-white dark:bg-gray-900 shadow sticky top-0 z-50 transition-colors duration-300">
@@ -205,7 +143,7 @@ const Navbar = () => {
                           to="/packageUpgrade"
                           className={(navData) =>
                             `px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 w-full text-right cursor-pointer hover:text-[#8755ea] ${linkClass(
-                              navData
+                              navData,
                             )}`
                           }
                         >
@@ -302,14 +240,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-
-
-
-
-
-
-
-
-
-
