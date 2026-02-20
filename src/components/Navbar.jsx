@@ -142,7 +142,7 @@ const Navbar = () => {
                         <NavLink
                           to="/packageUpgrade"
                           className={(navData) =>
-                            `px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 w-full text-right cursor-pointer hover:text-[#8755ea] ${linkClass(
+                            `px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 w-full text-right cursor-pointer hover:text-[#8755ea] ${navLinkClass(
                               navData,
                             )}`
                           }
