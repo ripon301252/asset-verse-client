@@ -16,8 +16,6 @@ AssetVerse helps companies manage their office assets, employees, inventory, and
 
 ### 🌐 [visit site](https://asset-verse-13e4f4.netlify.app/)
 
-`https://your-client-url.com`
-
 ---
 
 # 🖥️ Client-Side (Frontend)
